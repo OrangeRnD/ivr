@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.use.status.dao.UseStatusDAO">
+	<select id="selectStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+    			SELECT
+					SUM(A.TR_CNT) AS TR_CNT
+					,SUM(A.ERR_CNT) AS ERR_CNT
+					,AVG(A.TR_CNT) AS AVG_TR_CNT
+					,AVG(A.ERR_CNT) AS AVG_ERR_CNT
+					,MAX(A.TR_CNT) AS MAX_TR_CNT
+					,MAX(A.ERR_CNT) AS MAX_ERR_CNT
+					,MAX(CASE WHEN A.TR_NUM = 1 THEN A.DT ELSE '' END) AS MAX_TR_DT
+					,MAX(CASE WHEN A.ERR_NUM = 1 THEN A.DT ELSE '' END) AS MAX_ERR_DT
+				FROM (	
+					SELECT 
+						T1.DT
+						,T1.TR_CNT
+						,T1.ERR_CNT
+						,ROW_NUMBER() OVER(ORDER BY T1.TR_CNT DESC) AS TR_NUM
+						,ROW_NUMBER() OVER(ORDER BY T1.ERR_CNT DESC) AS ERR_NUM
+					FROM (
+						SELECT 
+							A.DT
+							,A.TR_CNT
+							,A.ERR_CNT
+						FROM TBCA_DLY_LDIN_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]> 
+						AND A.DT != #{param.CURRENT_DATE}
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,SUM(A.TR_CNT) AS TR_CNT
+									,SUM(A.ERR_CNT) AS ERR_CNT
+							FROM TBCA_MLY_LDIN_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							GROUP BY A.DT
+						) A
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+    		</when>
+    		<otherwise>
+				SELECT
+					SUM(A.TR_CNT) AS TR_CNT
+					,SUM(A.ERR_CNT) AS ERR_CNT
+					,AVG(A.TR_CNT) AS AVG_TR_CNT
+					,AVG(A.ERR_CNT) AS AVG_ERR_CNT
+					,MAX(A.TR_CNT) AS MAX_TR_CNT
+					,MAX(A.ERR_CNT) AS MAX_ERR_CNT
+					,MAX(CASE WHEN A.TR_NUM = 1 THEN A.DT ELSE '' END) AS MAX_TR_DT
+					,MAX(CASE WHEN A.ERR_NUM = 1 THEN A.DT ELSE '' END) AS MAX_ERR_DT
+				FROM (	
+					SELECT 
+						T1.DT
+						,T1.TR_CNT
+						,T1.ERR_CNT
+						,ROW_NUMBER() OVER(ORDER BY T1.TR_CNT DESC) AS TR_NUM
+						,ROW_NUMBER() OVER(ORDER BY T1.ERR_CNT DESC) AS ERR_NUM
+					FROM TBCA_DLY_LDIN_STAT T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+					<![CDATA[
+					WHERE T1.DT >= #{param.FROM_DT}
+					AND T1.DT <= #{param.TO_DT}
+					]]>
+				) A
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+	       		SELECT 
+	       			T1.DT
+					,T1.TR_CNT
+					,T1.ERR_CNT
+				FROM (
+					SELECT
+						A.DT
+						,A.TR_CNT
+						,A.ERR_CNT
+					FROM TBCA_DLY_LDIN_STAT A
+					<![CDATA[
+					WHERE A.DT >= #{param.FROM_DT}
+					AND A.DT <= #{param.TO_DT}
+					]]>
+					AND A.DT != #{param.CURRENT_DATE}
+					UNION ALL
+					SELECT *
+					FROM (
+						SELECT
+							A.DT
+							,SUM(A.TR_CNT) AS TR_CNT
+							,SUM(A.ERR_CNT) AS ERR_CNT
+						FROM TBCA_MLY_LDIN_STAT A
+						WHERE A.DT = #{param.CURRENT_DATE}
+						GROUP BY A.DT
+					) A
+				) T1
+				INNER JOIN TBCA_CLDR T0
+				ON T0.DT = T1.DT
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+				ORDER BY T1.DT
+			</when>
+			<otherwise>
+				SELECT 
+	       			T1.DT
+					,T1.TR_CNT
+					,T1.ERR_CNT
+				FROM TBCA_DLY_LDIN_STAT T1
+				INNER JOIN TBCA_CLDR T0
+				ON T0.DT = T1.DT
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+				<![CDATA[
+				WHERE T1.DT >= #{param.FROM_DT}
+				AND T1.DT <= #{param.TO_DT}
+				]]>
+				ORDER BY T1.DT
+			</otherwise>
+		</choose>
+    </select>
+</mapper>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.authygrpfnct.dao.AuthyGrpFnctDAO">
+    <!--<resultMap id="TBCA_AUTHY_GRP_FNCT_resultMap" type="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO">
+        <result property="authyGrpCd" column="authyGrpCd"/>
+        <result property="sn" column="sn"/>
+        <result property="fnctSecd" column="fnctSecd"/>
+        <result property="fnctSecdNm" column="fnctSecdNm"/>
+        <result property="delAltv" column="delAltv"/>
+        <result property="regrId" column="regrId"/>
+        <result property="regrNm" column="regrNm"/>
+        <result property="regnDt" column="regnDt"/>
+        <result property="lstUpdusrId" column="lstUpdusrId"/>
+        <result property="lstUpdtDt" column="lstUpdtDt"/>
+        <result property="chgCnt" column="chgCnt"/>
+    </resultMap>-->
+    <!--<resultMap id="TBCA_AUTHY_GRP_FNCT_list_resultMap" type="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO">
+        <result property="authyGrpCd" column="AUTHY_GRP_CD"/>
+        <result property="sn" column="SN"/>
+        <result property="fnctSecd" column="FNCT_SECD"/>
+        <result property="fnctSecdNm" column="FNCT_SECD_NM"/>
+        <result property="delAltv" column="DEL_ALTV"/>
+        <result property="regrId" column="REGR_ID"/>
+        <result property="regrNm" column="REGR_NM"/>
+        <result property="regnDt" column="REGN_DT"/>
+        <result property="lstUpdusrId" column="LST_UPDUSR_ID"/>
+        <result property="lstUpdtDt" column="LST_UPDT_DT"/>
+        <result property="chgCnt" column="CHG_CNT"/>
+    </resultMap>-->
+    <!--<insert id="insert" parameterType="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO" useGeneratedKeys="true" keyColumn="AUTHY_GRP_CD" keyProperty="authyGrpCd">-->
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO">
+        INSERT INTO TBCA_AUTHY_GRP_FNCT (
+            AUTHY_GRP_CD
+            ,SN
+            ,FNCT_SECD
+            ,DEL_ALTV
+            ,REGR_ID
+            ,REGN_DT
+            ,LST_UPDUSR_ID
+            ,LST_UPDT_DT
+            ,CHG_CNT
+        ) VALUES (
+            #{authyGrpCd}
+            ,#{sn}
+            ,#{fnctSecd}
+            ,0
+            ,#{regrId}
+            ,#{regnDt}
+            ,#{lstUpdusrId}
+            ,#{lstUpdtDt}
+            ,0
+        )
+    </insert>
+    <update id="update" parameterType="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO">
+        UPDATE TBCA_AUTHY_GRP_FNCT SET
+            FNCT_SECD = #{fnctSecd}
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CHG_CNT = #{chgCnt}
+        AND AUTHY_GRP_CD = #{authyGrpCd}
+        AND   SN = #{sn}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO">
+        UPDATE TBCA_AUTHY_GRP_FNCT SET
+            DEL_ALTV = 1
+            ,UPDUSR_ID = #{updusrId}
+            ,UPDT_DT = #{updtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CHG_CNT = #{chgCnt}
+        AND AUTHY_GRP_CD = #{authyGrpCd}
+        AND   SN = #{sn}
+    </update>
+    <select id="selectById" parameterType="String" resultType="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO">
+        SELECT
+               T1.AUTHY_GRP_CD AS authyGrpCd
+               ,T1.SN AS sn
+               ,T1.FNCT_SECD AS fnctSecd
+               ,(SELECT ST1.CD_NM FROM SMCODEC ST1 WHERE ST1.CD_CLSFCTN = 'FNCT_SECD' AND ST1.CD = T1.FNCT_SECD) AS fnctSecdNm
+               ,T1.REGR_ID AS regrId
+               ,(SELECT ST1.CUST_NM FROM CSCUSTM ST1 WHERE ST1.CUST_ID = T1.REGR_ID) AS regrNm
+               ,T1.REGN_DT AS regnDt
+               ,T1.LST_UPDUSR_ID AS lstUpdusrId
+               ,T1.LST_UPDT_DT AS lstUpdtDt
+               ,T1.CHG_CNT AS chgCnt
+        FROM TBCA_AUTHY_GRP_FNCT T1
+        WHERE T1.AUTHY_GRP_CD = #{authyGrpCd}
+        AND T1.SN = #{sn}
+    </select>
+    <select id="select" parameterType="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO" resultType="com.ibk.ivr.ca.system.authygrpfnct.vo.AuthyGrpFnctVO">
+        SELECT
+               T1.AUTHY_GRP_CD AS authyGrpCd
+               ,T1.SN AS sn
+               ,T1.FNCT_SECD AS fnctSecd
+               ,(SELECT ST1.CD_NM FROM SMCODEC ST1 WHERE ST1.CD_CLSFCTN = 'FNCT_SECD' AND ST1.CD = T1.FNCT_SECD) AS fnctSecdNm
+               ,T1.REGR_ID AS regrId
+               ,(SELECT ST1.CUST_NM FROM CSCUSTM ST1 WHERE ST1.CUST_ID = T1.REGR_ID) AS regrNm
+               ,T1.REGN_DT AS regnDt
+               ,T1.LST_UPDUSR_ID AS lstUpdusrId
+               ,T1.LST_UPDT_DT AS lstUpdtDt
+               ,T1.CHG_CNT AS chgCnt
+        FROM TBCA_AUTHY_GRP_FNCT T1
+        WHERE T1.AUTHY_GRP_CD = #{authyGrpCd}
+        AND T1.SN = #{sn}
+    </select>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.AUTHY_GRP_CD)
+        FROM TBCA_AUTHY_GRP_FNCT T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.AUTHY_GRP_CD != null and param.AUTHY_GRP_CD != ''">
+            <bind name="pattern_AUTHY_GRP_CD" value="'%' + param.AUTHY_GRP_CD + '%'" />            
+            AND T1.AUTHY_GRP_CD LIKE #{pattern_AUTHY_GRP_CD} 
+        </if>
+        <if test="param.SN != null and param.SN != ''">
+            AND T1.SN = #{param.SN}
+        </if>
+        <if test="param.FNCT_SECD != null and param.FNCT_SECD != ''">
+            <bind name="pattern_FNCT_SECD" value="'%' + param.FNCT_SECD + '%'" />            
+            AND T1.FNCT_SECD LIKE #{pattern_FNCT_SECD} 
+        </if>
+        <if test="param.DEL_ALTV != null and param.DEL_ALTV != ''">
+            AND T1.DEL_ALTV = #{param.DEL_ALTV}
+        </if>
+        <if test="param.REGR_ID != null and param.REGR_ID != ''">
+            AND T1.REGR_ID = #{param.REGR_ID}
+        </if>
+        <if test="param.REGN_DT != null and param.REGN_DT != ''">
+            AND T1.REGN_DT = #{param.REGN_DT}
+        </if>
+        <if test="param.LST_UPDUSR_ID != null and param.LST_UPDUSR_ID != ''">
+            AND T1.LST_UPDUSR_ID = #{param.LST_UPDUSR_ID}
+        </if>
+        <if test="param.LST_UPDT_DT != null and param.LST_UPDT_DT != ''">
+            AND T1.LST_UPDT_DT = #{param.LST_UPDT_DT}
+        </if>
+        <if test="param.CHG_CNT != null and param.CHG_CNT != ''">
+            AND T1.CHG_CNT = #{param.CHG_CNT}
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.AUTHY_GRP_CD
+               ,T1.SN
+               ,T1.FNCT_SECD
+               ,T1.LST_UPDUSR_ID
+               ,T1.LST_UPDT_DT
+        FROM TBCA_AUTHY_GRP_FNCT T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.AUTHY_GRP_CD != null and param.AUTHY_GRP_CD != ''">
+            <bind name="pattern_AUTHY_GRP_CD" value="'%' + param.AUTHY_GRP_CD + '%'" />            
+            AND T1.AUTHY_GRP_CD LIKE #{pattern_AUTHY_GRP_CD} 
+        </if>
+        <if test="param.SN != null and param.SN != ''">
+            AND T1.SN = #{param.SN}
+        </if>
+        <if test="param.FNCT_SECD != null and param.FNCT_SECD != ''">
+            <bind name="pattern_FNCT_SECD" value="'%' + param.FNCT_SECD + '%'" />            
+            AND T1.FNCT_SECD LIKE #{pattern_FNCT_SECD} 
+        </if>
+        <if test="param.DEL_ALTV != null and param.DEL_ALTV != ''">
+            AND T1.DEL_ALTV = #{param.DEL_ALTV}
+        </if>
+        <if test="param.REGR_ID != null and param.REGR_ID != ''">
+            AND T1.REGR_ID = #{param.REGR_ID}
+        </if>
+        <if test="param.REGN_DT != null and param.REGN_DT != ''">
+            AND T1.REGN_DT = #{param.REGN_DT}
+        </if>
+        <if test="param.LST_UPDUSR_ID != null and param.LST_UPDUSR_ID != ''">
+            AND T1.LST_UPDUSR_ID = #{param.LST_UPDUSR_ID}
+        </if>
+        <if test="param.LST_UPDT_DT != null and param.LST_UPDT_DT != ''">
+            AND T1.LST_UPDT_DT = #{param.LST_UPDT_DT}
+        </if>
+        <if test="param.CHG_CNT != null and param.CHG_CNT != ''">
+            AND T1.CHG_CNT = #{param.CHG_CNT}
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.AUTHY_GRP_CD DESC
+        </if>
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.AUTHY_GRP_CD
+               ,T1.SN
+               ,T1.FNCT_SECD
+               ,T1.LST_UPDUSR_ID
+               ,T1.LST_UPDT_DT
+        FROM TBCA_AUTHY_GRP_FNCT T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.AUTHY_GRP_CD != null and param.AUTHY_GRP_CD != ''">
+            <bind name="pattern_AUTHY_GRP_CD" value="'%' + param.AUTHY_GRP_CD + '%'" />            
+            AND T1.AUTHY_GRP_CD LIKE #{pattern_AUTHY_GRP_CD} 
+        </if>
+        <if test="param.SN != null and param.SN != ''">
+            AND T1.SN = #{param.SN}
+        </if>
+        <if test="param.FNCT_SECD != null and param.FNCT_SECD != ''">
+            <bind name="pattern_FNCT_SECD" value="'%' + param.FNCT_SECD + '%'" />            
+            AND T1.FNCT_SECD LIKE #{pattern_FNCT_SECD} 
+        </if>
+        <if test="param.DEL_ALTV != null and param.DEL_ALTV != ''">
+            AND T1.DEL_ALTV = #{param.DEL_ALTV}
+        </if>
+        <if test="param.REGR_ID != null and param.REGR_ID != ''">
+            AND T1.REGR_ID = #{param.REGR_ID}
+        </if>
+        <if test="param.REGN_DT != null and param.REGN_DT != ''">
+            AND T1.REGN_DT = #{param.REGN_DT}
+        </if>
+        <if test="param.LST_UPDUSR_ID != null and param.LST_UPDUSR_ID != ''">
+            AND T1.LST_UPDUSR_ID = #{param.LST_UPDUSR_ID}
+        </if>
+        <if test="param.LST_UPDT_DT != null and param.LST_UPDT_DT != ''">
+            AND T1.LST_UPDT_DT = #{param.LST_UPDT_DT}
+        </if>
+        <if test="param.CHG_CNT != null and param.CHG_CNT != ''">
+            AND T1.CHG_CNT = #{param.CHG_CNT}
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.AUTHY_GRP_CD DESC
+        </if>
+    </select>
+</mapper>

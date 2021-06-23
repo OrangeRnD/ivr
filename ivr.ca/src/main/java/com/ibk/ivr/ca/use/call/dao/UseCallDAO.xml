@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.use.call.dao.UseCallDAO">
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.ICID)
+        FROM TBCA_IVR_LOG T1
+		<![CDATA[
+		WHERE T1.LDIN_DT >= #{param.FROM_TM}
+		AND T1.LDIN_DT <= #{param.TO_TM}
+		]]>
+        <if test="param.TRAN_CD != null and param.TRAN_CD != ''">
+            AND EXISTS(SELECT 1 FROM TBCA_IVR_TR_RCPTN_LOG ST1 WHERE ST1.TRAN_CD = #{param.TRAN_CD} AND ST1.DT = T1.DT AND ST1.ICID = T1.ICID)
+        </if>
+        <if test="param.SRVC_CD != null and param.SRVC_CD != ''">
+            AND EXISTS(SELECT 1 FROM TBCA_IVR_SRVC_LOG ST1 WHERE ST1.SRVC_CD = #{param.SRVC_CD} AND ST1.DT = T1.DT AND ST1.ICID = T1.ICID)
+        </if>
+        <if test="param.RGSNO != null and param.RGSNO != ''">
+            AND T1.USER_SECD = #{param.USER_SECD} 
+        </if>
+		<![CDATA[
+		AND T1.DT >= #{param.FROM_DT}
+		AND T1.DT <= #{param.TO_DT}
+		]]>
+        <if test="param.RGSNO != null and param.RGSNO != ''">
+            AND T1.RGSNO = #{param.RGSNO} 
+        </if>
+        <if test="param.TELNO != null and param.TELNO != ''">
+            AND T1.TELNO = #{param.TELNO} 
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+        	T1.ICID
+        	,T1.DT 
+        	,T1.LDIN_DT
+			,T1.END_DT
+			,T1.TELNO
+			,CASE WHEN T1.USER_SECD IS NULL THEN '3' ELSE T1.USER_SECD END AS USER_SECD
+			,T1.RGSNO
+			,T1.MEDA_SECD
+			,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'MEDA_SECD' AND ST1.CD = T1.MEDA_SECD) AS MEDA_NM
+			,T1.INPTH_SECD
+			,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'INPTH_SECD' AND ST1.CD = T1.INPTH_SECD) AS INPTH_NM
+			,T1.USE_TM
+			,T1.END_RSN_SECD
+			,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'END_RSN_SECD' AND ST1.CD = T1.END_RSN_SECD) AS END_RSN_NM
+			,T1.CALL_KND_SECD
+			,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'CALL_KND_SECD' AND ST1.CD = T1.CALL_KND_SECD) AS CALL_KND_NM
+			,(SELECT ST1.SRVC_NM FROM TBCA_SRVC_CD ST1 WHERE ST1.SRVC_CD = T1.LAST_SRVC_CD) AS SRVC_NM
+			,(SELECT 1 FROM TBCA_IVR_TR_RCPTN_LOG ST1 WHERE ST1.ERR_CD != 'NONE' AND ST1.DT = T1.DT AND ST1.ICID = T1.ICID LIMIT 0, 1) AS ERR_CNT
+		FROM TBCA_IVR_LOG T1
+		<![CDATA[
+		WHERE T1.LDIN_DT >= #{param.FROM_TM}
+		AND T1.LDIN_DT <= #{param.TO_TM}
+		]]>
+        <if test="param.TRAN_CD != null and param.TRAN_CD != ''">
+            AND EXISTS(SELECT 1 FROM TBCA_IVR_TR_RCPTN_LOG ST1 WHERE ST1.TRAN_CD = #{param.TRAN_CD} AND ST1.DT = T1.DT AND ST1.ICID = T1.ICID)
+        </if>
+        <if test="param.SRVC_CD != null and param.SRVC_CD != ''">
+            AND EXISTS(SELECT 1 FROM TBCA_IVR_SRVC_LOG ST1 WHERE ST1.SRVC_CD = #{param.SRVC_CD} AND ST1.DT = T1.DT AND ST1.ICID = T1.ICID)
+        </if>
+        <if test="param.RGSNO != null and param.RGSNO != ''">
+            AND T1.USER_SECD = #{param.USER_SECD} 
+        </if>
+		<![CDATA[
+		AND T1.DT >= #{param.FROM_DT}
+		AND T1.DT <= #{param.TO_DT}
+		]]>
+        <if test="param.RGSNO != null and param.RGSNO != ''">
+            AND T1.RGSNO = #{param.RGSNO} 
+        </if>
+        <if test="param.TELNO != null and param.TELNO != ''">
+            AND T1.TELNO = #{param.TELNO} 
+        </if>
+		ORDER BY T1.LDIN_DT DESC
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectListAvgUseTm" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="int">
+        SELECT 
+        	AVG(T1.USE_TM) AS USE_TM
+		FROM TBCA_IVR_LOG T1
+		<![CDATA[
+		WHERE T1.LDIN_DT >= #{param.FROM_TM}
+		AND T1.LDIN_DT <= #{param.TO_TM}
+		]]>
+        <if test="param.TRAN_CD != null and param.TRAN_CD != ''">
+            AND EXISTS(SELECT 1 FROM TBCA_IVR_TR_RCPTN_LOG ST1 WHERE ST1.TRAN_CD = #{param.TRAN_CD} AND ST1.DT = T1.DT AND ST1.ICID = T1.ICID)
+        </if>
+        <if test="param.SRVC_CD != null and param.SRVC_CD != ''">
+            AND EXISTS(SELECT 1 FROM TBCA_IVR_SRVC_LOG ST1 WHERE ST1.SRVC_CD = #{param.SRVC_CD} AND ST1.DT = T1.DT AND ST1.ICID = T1.ICID)
+        </if>
+        <if test="param.RGSNO != null and param.RGSNO != ''">
+            AND T1.USER_SECD = #{param.USER_SECD} 
+        </if>
+		<![CDATA[
+		AND T1.DT >= #{param.FROM_DT}
+		AND T1.DT <= #{param.TO_DT}
+		]]>
+        <if test="param.RGSNO != null and param.RGSNO != ''">
+            AND T1.RGSNO = #{param.RGSNO} 
+        </if>
+        <if test="param.TELNO != null and param.TELNO != ''">
+            AND T1.TELNO = #{param.TELNO} 
+        </if>
+    </select>
+    <select id="selectListFrequentlyUsedSrvc" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT 
+        	A.SRVC_CD
+    		,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+			,A.CNT
+		FROM (
+			SELECT 
+				T1.SRVC_CD
+				,SUM(T1.CNT) AS CNT
+			FROM (
+				SELECT
+					T1.SRVC_CD
+					,T1.CNT
+				FROM TBCA_DLY_USER_SRVC_STAT T1
+				<![CDATA[
+				WHERE T1.DT >= #{param.SRVC_FROM_DT}
+				AND T1.DT < #{param.SRVC_TO_DT}
+				]]>
+		        <if test="param.TELNO != null and param.TELNO != ''">
+		            AND T1.TELNO = #{param.TELNO} 
+		        </if>
+				AND T1.SRVC_CD != '0000'
+				AND T1.SRVC_CD != '0001'
+				AND T1.SRVC_CD != '0002'
+				AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+		        <if test="param.RGSNO != null and param.RGSNO != ''">
+		            AND T1.RGSNO = #{param.RGSNO} 
+		        </if>
+				UNION ALL
+				SELECT *
+				FROM (
+					SELECT
+						T1.SRVC_CD
+						,SUM(T1.CNT) AS CNT
+					FROM TBCA_MLY_USER_SRVC_STAT T1
+					WHERE T1.DT = #{param.SRVC_TO_DT}
+			        <if test="param.TELNO != null and param.TELNO != ''">
+			            AND T1.TELNO = #{param.TELNO} 
+			        </if>
+					AND T1.SRVC_CD != '0000'
+					AND T1.SRVC_CD != '0001'
+					AND T1.SRVC_CD != '0002'
+					AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+			        <if test="param.RGSNO != null and param.RGSNO != ''">
+			            AND T1.RGSNO = #{param.RGSNO} 
+			        </if>
+			        GROUP BY T1.SRVC_CD
+				) A
+			) T1
+			WHERE 1 = 1
+			GROUP BY T1.SRVC_CD
+			ORDER BY CNT DESC
+			LIMIT 0, 5
+		) A
+		LEFT OUTER JOIN TBCA_SRVC_CD B
+		ON B.SRVC_CD = A.SRVC_CD
+    </select>
+    <select id="selectListTr" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+	    SELECT
+			A.TRAN_CD
+    		,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+			,A.S_CNT
+			,A.F_CNT
+		FROM (
+			SELECT 
+				T1.TRAN_CD
+				,T1.RSLT_CD
+				,SUM(CASE WHEN T1.RSLT_CD = '00' THEN 1 ELSE 0 END) AS S_CNT
+				,SUM(CASE WHEN T1.RSLT_CD = '00' THEN 0 ELSE 1 END) AS F_CNT
+			FROM TBCA_IVR_TR_RCPTN_LOG T1
+			WHERE T1.DT = #{param.DT} 
+			AND T1.ICID = #{param.ICID} 
+			GROUP BY T1.TRAN_CD, T1.RSLT_CD
+		) A
+		LEFT OUTER JOIN TBCA_TR_CD B
+		ON B.TRAN_CD = A.TRAN_CD
+		ORDER BY A.S_CNT
+    </select>
+    <select id="selectListErr" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	SELECT
+    		A.ERR_CD
+    		,(CASE WHEN B.ERR_CN IS NULL THEN A.ERR_CD ELSE B.ERR_CN END) AS ERR_CN
+    	FROM  (
+		    SELECT 
+				T1.ERR_CD
+			FROM TBCA_IVR_TR_RCPTN_LOG T1
+			WHERE T1.ERR_CD != 'NONE'
+			AND T1.DT = #{param.DT} 
+			AND T1.ICID = #{param.ICID} 
+			GROUP BY T1.ERR_CD
+		) A
+		LEFT OUTER JOIN TBCA_ERR_CD B
+		ON B.ERR_CD = A.ERR_CD
+		ORDER BY A.ERR_CD
+    </select>
+</mapper>

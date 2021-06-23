@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.errcd.dao.ErrCdDAO">
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.ERR_CD)
+        FROM TBCA_ERR_CD T1
+        WHERE T1.ERR_CD != ''
+        AND T1.ERR_CD != ' '
+        AND T1.ERR_CD != '	'
+        <if test="param.ERR_CD != null and param.ERR_CD != ''">
+            <bind name="pattern_ERR_CD" value="'%' + param.ERR_CD + '%'" />            
+            AND T1.ERR_CD LIKE #{pattern_ERR_CD} 
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.ERR_CD
+               ,T1.ERR_CN
+        FROM TBCA_ERR_CD T1
+        WHERE T1.ERR_CD != ''
+        AND T1.ERR_CD != ' '
+        AND T1.ERR_CD != '	'
+        <if test="param.ERR_CD != null and param.ERR_CD != ''">
+            <bind name="pattern_ERR_CD" value="'%' + param.ERR_CD + '%'" />            
+            AND T1.ERR_CD LIKE #{pattern_ERR_CD} 
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.ERR_CD
+        </if>
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.ERR_CD
+               ,T1.ERR_CN
+        FROM TBCA_ERR_CD T1
+        WHERE T1.ERR_CD != ''
+        AND T1.ERR_CD != ' '
+        AND T1.ERR_CD != '	'
+        <if test="param.ERR_CD != null and param.ERR_CD != ''">
+            <bind name="pattern_ERR_CD" value="'%' + param.ERR_CD + '%'" />            
+            AND T1.ERR_CD LIKE #{pattern_ERR_CD} 
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.ERR_CD
+        </if>
+    </select>
+</mapper>

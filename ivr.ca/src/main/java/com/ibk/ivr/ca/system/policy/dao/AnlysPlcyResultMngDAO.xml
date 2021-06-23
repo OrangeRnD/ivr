@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.policy.dao.AnlysPlcyResultMngDAO">
+    <update id="updateNotifinSuccess" parameterType="long">
+        UPDATE TBCA_ANLYS_PLCY_RSLT SET
+            NOTIFTN_ALTV = 1
+        WHERE NOTIFTN_ALTV = 0
+        AND ANLYS_PLCY_RSLT_SN = #{anlysPlcyRsltSn}
+    </update>
+    <update id="updateNotifinFail" parameterType="long">
+        UPDATE TBCA_ANLYS_PLCY_RSLT SET
+            NOTIFTN_ALTV = 0
+        WHERE NOTIFTN_ALTV = 1
+        AND ANLYS_PLCY_RSLT_SN = #{anlysPlcyRsltSn}
+    </update>
+    <select id="selectListForNotiftn" parameterType="date" resultType="hashMap">
+        SELECT
+               T1.ANLYS_PLCY_ID
+               ,T1.ANLYS_PLCY_RSLT_SN
+               ,T1.EXCLSN_STDVAL
+               ,T1.NOTIFTN_STDVAL
+               ,T1.SMS_XMSN_ALTV
+               ,T1.EMAIL_XMSN_ALTV
+               ,T1.OCCRRNC_CNT
+               ,T1.CMPR_CNT
+               ,T1.PRD_SECD
+               ,T1.OCCRRNC_DT
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'PRD_SECD' AND ST1.CD = T1.PRD_SECD) AS PRD_SECD_NM
+               ,T1.BIZDT_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'BIZDT_SECD' AND ST1.CD = T1.BIZDT_SECD) AS BIZDT_SECD_NM
+               ,T2.ANLYS_PLCY_NM
+               ,T2.SMS_XMSN_CN
+        FROM TBCA_ANLYS_PLCY_RSLT T1
+        INNER JOIN TBCA_ANLYS_PLCY T2
+        ON T2.DEL_ALTV = 0
+        AND T2.ANLYS_PLCY_ID = T1.ANLYS_PLCY_ID
+        WHERE T1.NOTIFTN_ALTV = 0
+		AND T1.OCCRRNC_DT >= #{occrrnc_dt}
+        ORDER BY T1.ANLYS_PLCY_RSLT_SN ASC
+    </select>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        	COUNT(T1.ANLYS_PLCY_RSLT_SN)
+		FROM TBCA_ANLYS_PLCY_RSLT T1
+		INNER JOIN TBCA_ANLYS_PLCY T2
+		ON T2.ANLYS_PLCY_ID = T1.ANLYS_PLCY_ID
+		<![CDATA[
+		WHERE T1.OCCRRNC_DT > #{param.FROM_TS}
+		AND T1.OCCRRNC_DT < #{param.TO_TS}
+		]]>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+			T2.ANLYS_PLCY_ID
+	       ,T2.ANLYS_PLCY_NM
+	       ,T1.EXCLSN_STDVAL
+	       ,T1.NOTIFTN_STDVAL
+	       ,T1.SMS_XMSN_ALTV
+	       ,T1.EMAIL_XMSN_ALTV
+		   ,T1.OCCRRNC_DT
+            ,T1.OCCRRNC_CNT
+            ,T1.CMPR_CNT
+		FROM TBCA_ANLYS_PLCY_RSLT T1
+		INNER JOIN TBCA_ANLYS_PLCY T2
+		ON T2.ANLYS_PLCY_ID = T1.ANLYS_PLCY_ID
+		<![CDATA[
+		WHERE T1.OCCRRNC_DT > #{param.FROM_TS}
+		AND T1.OCCRRNC_DT < #{param.TO_TS}
+		]]>
+		ORDER BY T1.ANLYS_PLCY_RSLT_SN DESC
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+</mapper>

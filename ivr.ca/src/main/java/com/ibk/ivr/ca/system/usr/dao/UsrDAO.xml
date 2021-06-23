@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.usr.dao.UsrDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.usr.vo.UsrVO" useGeneratedKeys="true" keyColumn="USR_ID" keyProperty="usrId">
+        INSERT INTO TBCA_USR (
+            EMP_NR
+            ,EMP_NM
+            ,SMS_NOTIFTN_XMSN_ALTV
+            ,EMAIL_NOTIFTN_XMSN_ALTV
+            ,EMAIL
+            ,TELNO
+            ,DLY_RPT_RCPTN_ALTV
+            ,LGN_CNT
+            ,USE_ALTV
+            ,DEL_ALTV
+            ,REGR_ID
+            ,REGN_DT
+            ,LST_UPDUSR_ID
+            ,LST_UPDT_DT
+            ,CHG_CNT
+        ) VALUES (
+            #{empNr}
+            ,#{empNm}
+            ,#{smsNotiftnXmsnAltv}
+            ,#{emailNotiftnXmsnAltv}
+            ,#{email}
+            ,#{telno}
+            ,#{dlyRptRcptnAltv}
+            ,0
+            ,1
+            ,0
+            ,#{regrId}
+            ,#{regnDt}
+            ,#{regrId}
+            ,#{regnDt}
+            ,0
+        )
+    </insert>
+    <select id="selectExists" parameterType="com.ibk.ivr.ca.system.usr.vo.UsrVO" resultType="int">
+        SELECT 1
+        FROM TBCA_USR T1
+        WHERE T1.DEL_ALTV = 0 
+        AND T1.EMP_NR = #{empNr}
+        AND T1.USR_ID != #{usrId}
+        LIMIT 0, 1
+    </select>
+    <update id="update" parameterType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+        UPDATE TBCA_USR SET
+            EMP_NR = #{empNr}
+            ,EMP_NM = #{empNm}
+            ,SMS_NOTIFTN_XMSN_ALTV = #{smsNotiftnXmsnAltv}
+            ,EMAIL_NOTIFTN_XMSN_ALTV = #{emailNotiftnXmsnAltv}
+            ,EMAIL = #{email}
+            ,TELNO = #{telno}
+            ,DLY_RPT_RCPTN_ALTV = #{dlyRptRcptnAltv}
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE USR_ID = #{usrId}
+    </update>
+    <update id="updateForSSO" parameterType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+        UPDATE TBCA_USR SET
+            EMAIL = (CASE WHEN EMAIL IS NULL OR EMAIL = '' THEN #{email} ELSE EMAIL END)
+        WHERE USR_ID = #{usrId}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+        UPDATE TBCA_USR SET
+            DEL_ALTV = 1
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE USR_ID = #{usrId}
+    </update>
+    <select id="select" parameterType="int" resultType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+        SELECT
+               T1.USR_ID AS usrId
+               ,T1.EMP_NR AS empNr
+               ,T1.EMP_NM AS empNm
+               ,T1.SMS_NOTIFTN_XMSN_ALTV AS smsNotiftnXmsnAltv
+               ,T1.EMAIL_NOTIFTN_XMSN_ALTV AS emailNotiftnXmsnAltv
+               ,T1.EMAIL AS email
+               ,T1.TELNO AS telno
+               ,T1.DLY_RPT_RCPTN_ALTV AS dlyRptRcptnAltv
+               ,T1.LST_LGN_DT AS lstLgnDt
+               ,T1.LST_LOGOUT_DT AS lstLogoutDt
+               ,T1.LST_LGN_IP AS lstLgnIp
+               ,T1.LGN_CNT AS lgnCnt
+               ,T1.USE_ALTV AS useAltv
+               ,T1.REGR_ID AS regrId
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.REGR_ID) AS regrNm
+               ,T1.REGN_DT AS regnDt
+               ,T1.LST_UPDUSR_ID AS lstUpdusrId
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.LST_UPDUSR_ID) AS lstUpdusrNm
+               ,T1.LST_UPDT_DT AS lstUpdtDt
+               ,T1.CHG_CNT AS chgCnt
+               ,T2.AUTHY_GRP_CD AS authyGrpCd
+        FROM TBCA_USR T1
+        INNER JOIN TBCA_USR_AUTHY_GRP T2
+        ON T2.DEL_ALTV = 0
+        AND T2.USR_ID = T1.USR_ID
+        WHERE T1.USR_ID = #{usrId}
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.USR_ID
+               ,T1.EMP_NR
+               ,T1.EMP_NM
+               ,T1.SMS_NOTIFTN_XMSN_ALTV
+               ,T1.EMAIL_NOTIFTN_XMSN_ALTV
+               ,T1.EMAIL
+               ,T1.TELNO
+               ,T1.DLY_RPT_RCPTN_ALTV
+               ,T1.LST_LGN_DT
+               ,T1.LST_LOGOUT_DT
+               ,T1.LGN_DT
+               ,T1.LGN_IP
+               ,T1.LST_LGN_IP
+               ,T1.USE_ALTV
+               ,T1.REGR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.REGR_ID) AS REGR_NM
+               ,T1.REGN_DT
+               ,T1.LST_UPDUSR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.LST_UPDUSR_ID) AS LST_UPDUSR_NM
+               ,T1.LST_UPDT_DT
+               ,T1.CHG_CNT
+               ,T2.AUTHY_GRP_CD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'AUTHY_GRP_CD' AND ST1.CD = T2.AUTHY_GRP_CD) AS AUTHY_GRP_NM
+        FROM TBCA_USR T1
+        INNER JOIN TBCA_USR_AUTHY_GRP T2
+        ON T2.DEL_ALTV = 0
+        AND T2.USR_ID = T1.USR_ID
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.DLY_RPT_RCPTN_ALTV != null and param.DLY_RPT_RCPTN_ALTV != ''">
+            AND T1.DLY_RPT_RCPTN_ALTV = #{param.DLY_RPT_RCPTN_ALTV}
+        </if>
+        <if test="param.SMS_NOTIFTN_XMSN_ALTV != null and param.SMS_NOTIFTN_XMSN_ALTV != ''">
+            AND T1.SMS_NOTIFTN_XMSN_ALTV = #{param.SMS_NOTIFTN_XMSN_ALTV}
+        </if>
+        <if test="param.EMAIL_NOTIFTN_XMSN_ALTV != null and param.EMAIL_NOTIFTN_XMSN_ALTV != ''">
+            AND T1.EMAIL_NOTIFTN_XMSN_ALTV = #{param.EMAIL_NOTIFTN_XMSN_ALTV}
+        </if>
+        <if test="param.EMP_NR != null and param.EMP_NR != ''">
+            <bind name="pattern_EMP_NR" value="'%' + param.EMP_NR + '%'" />            
+            AND T1.EMP_NR LIKE #{pattern_EMP_NR} 
+        </if>
+        <if test="param.EMP_NM != null and param.EMP_NM != ''">
+            <bind name="pattern_EMP_NM" value="'%' + param.EMP_NM + '%'" />            
+            AND T1.EMP_NM LIKE #{pattern_EMP_NM} 
+        </if>
+        ORDER BY T1.EMP_NM
+    </select>
+    <select id="selectListForPlcy" resultType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+        SELECT 
+			T1.EMP_NR AS empNr
+			,T1.EMP_NM AS empNm
+			,(CASE WHEN T1.EMAIL_NOTIFTN_XMSN_ALTV = 1 THEN T1.EMP_NR ELSE NULL END) AS email
+			,(CASE WHEN T1.SMS_NOTIFTN_XMSN_ALTV = 1 THEN T1.TELNO ELSE NULL END) AS telno
+			,T1.USR_ID AS usrId
+		FROM TBCA_USR T1
+		WHERE T1.USE_ALTV = 1
+		AND T1.DEL_ALTV = 0
+    </select>
+    <select id="selectListForReport" parameterType="string" resultType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+        SELECT 
+			T1.EMP_NR AS empNr
+			,T1.EMP_NM AS empNm
+			,T1.USR_ID AS usrId
+		FROM TBCA_USR T1
+		WHERE T1.USE_ALTV = 1
+		AND T1.DEL_ALTV = 0
+		AND NOT EXISTS(SELECT 1 FROM TBCA_RPT_NOTIFTN_HIST ST1 WHERE ST1.SNDNG_ALTV = 1 AND ST1.DT = #{currentDt} AND ST1.EMP_NR = T1.EMP_NR)
+		AND T1.DLY_RPT_RCPTN_ALTV = 1
+    </select>
+</mapper>

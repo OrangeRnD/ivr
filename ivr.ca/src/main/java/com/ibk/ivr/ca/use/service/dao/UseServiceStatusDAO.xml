@@ -1,0 +1,1258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.use.service.dao.UseServiceStatusDAO">
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+		        SELECT
+					A.SRVC_CD
+					,(CASE WHEN A.TYPE != 4 AND B.SRVC_NM IS NULL THEN A.SRVC_CD WHEN A.TYPE = 4 THEN A.TRAN_NM ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+					,A.TYPE
+				FROM (
+					SELECT 
+						1 AS TYPE
+						,A.SRVC_CD
+						,'' AS TRAN_NM
+						,A.CNT
+					FROM (	
+						SELECT *
+						FROM (	
+							SELECT
+							       T1.SRVC_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM (
+								SELECT
+									A.DT
+									,A.SRVC_CD
+									,A.CNT
+								FROM TBCA_DLY_SRVC_STAT A
+								<![CDATA[
+								WHERE A.DT >= #{param.FROM_DT}
+								AND A.DT <= #{param.TO_DT}
+								]]>
+								AND A.DT != #{param.CURRENT_DATE}
+								AND A.SRVC_CD != '0000'
+								AND A.SRVC_CD != '0001'
+								AND A.SRVC_CD != '0002'
+								AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+								UNION ALL
+								SELECT *
+								FROM (
+									SELECT 
+											A.DT
+											,A.SRVC_CD
+											,SUM(A.CNT) AS CNT
+									FROM TBCA_MLY_SRVC_STAT A
+									WHERE A.DT = #{param.CURRENT_DATE}
+									AND A.SRVC_CD != '0000'
+									AND A.SRVC_CD != '0001'
+									AND A.SRVC_CD != '0002'
+									AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+									GROUP BY A.DT, A.SRVC_CD
+								) A
+							) T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							GROUP BY T1.SRVC_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					UNION ALL
+					SELECT
+						2 AS TYPE
+						,A.SRVC_CD
+						,'' AS TRAN_NM
+						,A.CNT
+					FROM (	
+						SELECT *
+						FROM (	
+					        SELECT
+							       T1.SRVC_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM (
+								SELECT
+									A.DT
+									,A.SRVC_CD
+									,A.CNT
+								FROM TBCA_DLY_LAST_SRVC_STAT A
+								<![CDATA[
+								WHERE A.DT >= #{param.FROM_DT}
+								AND A.DT <= #{param.TO_DT}
+								]]>
+								AND A.DT != #{param.CURRENT_DATE}
+								AND A.SRVC_CD != '0000'
+								AND A.SRVC_CD != '0001'
+								AND A.SRVC_CD != '0002'
+								AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+								UNION ALL
+								SELECT *
+								FROM (
+									SELECT 
+											A.DT
+											,A.SRVC_CD
+											,SUM(A.CNT) AS CNT
+									FROM TBCA_MLY_LAST_SRVC_STAT A
+									WHERE A.DT = #{param.CURRENT_DATE}
+									AND A.SRVC_CD != '0000'
+									AND A.SRVC_CD != '0001'
+									AND A.SRVC_CD != '0002'
+									AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+									GROUP BY A.DT, A.SRVC_CD
+								) A
+							) T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							GROUP BY T1.SRVC_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					UNION ALL
+					SELECT 
+						3 AS TYPE
+						,A.SRVC_CD
+						,'' AS TRAN_NM
+						,A.CNT
+					FROM (	
+						SELECT *
+						FROM (	
+					        SELECT
+							       T1.SRVC_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM (
+								SELECT
+									A.DT
+									,A.SRVC_CD
+									,A.CNT
+								FROM TBCA_DLY_SRVC_STAT A
+								<![CDATA[
+								WHERE A.DT >= #{param.FROM_DT}
+								AND A.DT <= #{param.TO_DT}
+								]]>
+								AND A.DT != #{param.CURRENT_DATE}
+								AND A.SRVC_CD LIKE '5%'
+								AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+								UNION ALL
+								SELECT *
+								FROM (
+									SELECT 
+											A.DT
+											,A.SRVC_CD
+											,SUM(A.CNT) AS CNT
+									FROM TBCA_MLY_SRVC_STAT A
+									WHERE A.DT = #{param.CURRENT_DATE}
+									AND A.SRVC_CD LIKE '5%'
+									AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+									GROUP BY A.DT, A.SRVC_CD
+								) A
+							) T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							GROUP BY T1.SRVC_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					UNION ALL
+					SELECT
+						4 AS TYPE
+						,A.TRAN_CD AS SRVC_CD
+						,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+						,A.CNT
+					FROM (
+						SELECT *
+						FROM (	
+					        SELECT
+							       T1.TRAN_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM (
+								SELECT
+									A.DT
+									,A.TRAN_CD
+									,A.CNT
+								FROM TBCA_DLY_TR_TIMEOUT_STAT A
+								<![CDATA[
+								WHERE A.DT >= #{param.FROM_DT}
+								AND A.DT <= #{param.TO_DT}
+								]]>
+								AND A.DT != #{param.CURRENT_DATE}
+								UNION ALL
+								SELECT *
+								FROM (
+									SELECT 
+											A.DT
+											,A.TRAN_CD
+											,SUM(A.CNT) AS CNT
+									FROM TBCA_MLY_TR_TIMEOUT_STAT A
+									WHERE A.DT = #{param.CURRENT_DATE}
+									GROUP BY A.DT, A.TRAN_CD
+								) A
+							) T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							GROUP BY T1.TRAN_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					LEFT OUTER JOIN TBCA_TR_CD B
+					ON B.TRAN_CD = A.TRAN_CD
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.TYPE, A.CNT DESC
+			</when>
+			<otherwise>
+				SELECT
+					A.SRVC_CD
+					,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+					,A.TYPE
+				FROM (
+					SELECT
+						1 AS TYPE
+						,A.SRVC_CD
+						,'' AS TRAN_NM
+						,A.CNT
+					FROM (	
+						SELECT *
+						FROM (	
+							SELECT
+							       T1.SRVC_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM TBCA_DLY_SRVC_STAT T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							<![CDATA[
+							WHERE T1.DT >= #{param.FROM_DT}
+							AND T1.DT <= #{param.TO_DT}
+							]]>
+							AND T1.SRVC_CD != '0000'
+							AND T1.SRVC_CD != '0001'
+							AND T1.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+							GROUP BY T1.SRVC_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					UNION ALL
+					SELECT
+						2 AS TYPE
+						,A.SRVC_CD
+						,'' AS TRAN_NM
+						,A.CNT
+					FROM (	
+						SELECT *
+						FROM (	
+					        SELECT
+							       T1.SRVC_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM TBCA_DLY_LAST_SRVC_STAT T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							<![CDATA[
+							WHERE T1.DT >= #{param.FROM_DT}
+							AND T1.DT <= #{param.TO_DT}
+							]]>
+							AND T1.SRVC_CD != '0000'
+							AND T1.SRVC_CD != '0001'
+							AND T1.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+							GROUP BY T1.SRVC_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					UNION ALL
+					SELECT 
+						3 AS TYPE
+						,A.SRVC_CD
+						,'' AS TRAN_NM
+						,A.CNT
+					FROM (	
+						SELECT *
+						FROM (	
+					        SELECT
+							       T1.SRVC_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM TBCA_DLY_SRVC_STAT T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							<![CDATA[
+							WHERE T1.DT >= #{param.FROM_DT}
+							AND T1.DT <= #{param.TO_DT}
+							]]>
+							AND T1.SRVC_CD LIKE '5%'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+							GROUP BY T1.SRVC_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					UNION ALL
+					SELECT
+						4 AS TYPE
+						,A.TRAN_CD AS SRVC_CD
+						,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+						,A.CNT
+					FROM (	
+						SELECT *
+						FROM (	
+					        SELECT
+							       T1.TRAN_CD
+							       ,SUM(T1.CNT) AS CNT
+							FROM TBCA_DLY_TR_TIMEOUT_STAT T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							<![CDATA[
+							WHERE T1.DT >= #{param.FROM_DT}
+							AND T1.DT <= #{param.TO_DT}
+							]]>
+							GROUP BY T1.TRAN_CD
+						) A
+						ORDER BY A.CNT DESC
+						LIMIT 0, 10
+					) A
+					LEFT OUTER JOIN TBCA_TR_CD B
+					ON B.TRAN_CD = A.TRAN_CD
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.TYPE, A.CNT DESC
+			</otherwise>
+		</choose>
+    </select>
+    <select id="selectListThirtyMlySrvcTop5HM" parameterType="string" resultType="string">
+		SELECT
+		       T1.HM
+		FROM TBCA_30MLY_SRVC_STAT T1
+		WHERE T1.DT = #{dt}
+		GROUP BY T1.HM
+		ORDER BY T1.HM
+    </select>
+    <select id="selectListThirtyMlySrvcTop5" parameterType="string" resultType="hashMap">
+		SELECT A.*
+				,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+		FROM (
+			SELECT
+			       T1.HM
+			       ,T1.SRVC_CD
+			       ,T1.CNT
+			FROM TBCA_30MLY_SRVC_STAT T1
+			WHERE T1.DT = #{dt}
+			AND EXISTS (SELECT 1 
+						FROM (
+							SELECT ST1.SRVC_CD, SUM(ST1.CNT) AS TCNT 
+							FROM TBCA_30MLY_SRVC_STAT ST1 
+							WHERE ST1.DT = #{dt} 
+							AND ST1.SRVC_CD != '0000'
+							AND ST1.SRVC_CD != '0001'
+							AND ST1.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST2 WHERE ST2.MONITORING_YN = '1' AND ST2.SRVC_CD = ST1.SRVC_CD)
+							GROUP BY ST1.SRVC_CD 
+							ORDER BY TCNT DESC 
+							LIMIT 0, 5
+						) ST2 
+				    	WHERE ST2.SRVC_CD = T1.SRVC_CD)
+		) A
+		LEFT OUTER JOIN TBCA_SRVC_CD B
+		ON B.SRVC_CD = A.SRVC_CD
+		ORDER BY A.HM, A.SRVC_CD
+    </select>
+	<select id="selectListSrvcUserStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+		WITH DLY_SRVC_USER_STAT (USER_SECD, SRVC_CD, CNT) AS
+		(
+			SELECT
+				T1.USER_SECD
+				,T1.SRVC_CD
+				,SUM(T1.CNT) AS CNT
+		    	<choose>
+		    		<when test="param.CURRENT_DATE != null">
+						FROM (
+							SELECT
+								A.DT
+								,A.USER_SECD
+								,A.SRVC_CD
+								,A.CNT
+							FROM TBCA_DLY_SRVC_USER_STAT A
+							<![CDATA[
+							WHERE A.DT >= #{param.FROM_DT}
+							AND A.DT <= #{param.TO_DT}
+							]]>
+							AND A.DT != #{param.CURRENT_DATE}
+							AND A.SRVC_CD != '0000'
+							AND A.SRVC_CD != '0001'
+							AND A.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+							UNION ALL
+							SELECT *
+							FROM (
+								SELECT 
+										A.DT
+										,A.USER_SECD
+										,A.SRVC_CD
+										,SUM(A.CNT) AS CNT
+								FROM TBCA_MLY_SRVC_USER_STAT A
+								WHERE A.DT = #{param.CURRENT_DATE}
+								AND A.SRVC_CD != '0000'
+								AND A.SRVC_CD != '0001'
+								AND A.SRVC_CD != '0002'
+								AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+								GROUP BY A.DT, A.USER_SECD, A.SRVC_CD
+							) A
+						) T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+		    		</when>
+		    		<otherwise>
+						FROM TBCA_DLY_SRVC_USER_STAT T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+						<![CDATA[
+						WHERE T1.DT >= #{param.FROM_DT}
+						AND T1.DT <= #{param.TO_DT}
+						]]>
+						AND T1.SRVC_CD != '0000'
+						AND T1.SRVC_CD != '0001'
+						AND T1.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+		    		</otherwise>
+		    	</choose>
+			GROUP BY T1.USER_SECD, T1.SRVC_CD
+		)
+		SELECT
+			A.SRVC_CD
+			,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+			,A.CNT
+			,A.TYPE
+		FROM (
+			SELECT *
+			FROM (	
+				SELECT 
+					1 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_USER_STAT T1
+				WHERE T1.USER_SECD = '1'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+			UNION ALL
+			SELECT *
+			FROM (	
+				SELECT 
+					2 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_USER_STAT T1
+				WHERE T1.USER_SECD = '2'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+		) A
+		LEFT OUTER JOIN TBCA_SRVC_CD B
+		ON B.SRVC_CD = A.SRVC_CD
+		ORDER BY A.TYPE, A.CNT DESC
+    </select>
+    <select id="selectListSrvcAgeStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+       		WITH DLY_SRVC_AGE_STAT (AGRDE_SECD, SRVC_CD, CNT) AS
+		(
+			SELECT
+				T1.AGRDE_SECD
+				,T1.SRVC_CD
+				,SUM(T1.CNT) AS CNT
+		    	<choose>
+		    		<when test="param.CURRENT_DATE != null">
+						FROM (
+							SELECT
+								A.DT
+								,A.AGRDE_SECD
+								,A.SRVC_CD
+								,A.CNT
+							FROM TBCA_DLY_SRVC_AGE_STAT A
+							<![CDATA[
+							WHERE A.DT >= #{param.FROM_DT}
+							AND A.DT <= #{param.TO_DT}
+							]]>
+							AND A.DT != #{param.CURRENT_DATE}
+							AND A.SRVC_CD != '0000'
+							AND A.SRVC_CD != '0001'
+							AND A.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+							UNION ALL
+							SELECT *
+							FROM (
+								SELECT 
+										A.DT
+										,A.AGRDE_SECD
+										,A.SRVC_CD
+										,SUM(A.CNT) AS CNT
+								FROM TBCA_MLY_SRVC_AGE_STAT A
+								WHERE A.DT = #{param.CURRENT_DATE}
+								AND A.SRVC_CD != '0000'
+								AND A.SRVC_CD != '0001'
+								AND A.SRVC_CD != '0002'
+								AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+								GROUP BY A.DT, A.AGRDE_SECD, A.SRVC_CD
+							) A
+						) T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+		    		</when>
+		    		<otherwise>
+						FROM TBCA_DLY_SRVC_AGE_STAT T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+						<![CDATA[
+						WHERE T1.DT >= #{param.FROM_DT}
+						AND T1.DT <= #{param.TO_DT}
+						]]>
+						AND T1.SRVC_CD != '0000'
+						AND T1.SRVC_CD != '0001'
+						AND T1.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+		    		</otherwise>
+		    	</choose>
+			GROUP BY T1.AGRDE_SECD, T1.SRVC_CD
+		)
+		SELECT
+			A.SRVC_CD
+			,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+			,A.CNT
+			,A.TYPE
+		FROM (
+			SELECT *
+			FROM (	
+				SELECT 
+					1 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_AGE_STAT T1
+				WHERE T1.AGRDE_SECD = '2'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+			UNION ALL
+			SELECT *
+			FROM (	
+				SELECT 
+					2 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_AGE_STAT T1
+				WHERE T1.AGRDE_SECD = '3'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+			UNION ALL
+			SELECT *
+			FROM (	
+				SELECT 
+					3 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_AGE_STAT T1
+				WHERE T1.AGRDE_SECD = '4'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+			UNION ALL
+			SELECT *
+			FROM (	
+				SELECT 
+					4 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_AGE_STAT T1
+				WHERE T1.AGRDE_SECD = '5'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+			UNION ALL
+			SELECT *
+			FROM (	
+				SELECT 
+					5 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_AGE_STAT T1
+				WHERE T1.AGRDE_SECD = '6'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+			UNION ALL
+			SELECT *
+			FROM (	
+				SELECT 
+					6 AS TYPE
+					,T1.SRVC_CD
+					,T1.CNT
+					,ROW_NUMBER() OVER(ORDER BY T1.CNT DESC) AS NUM
+				FROM DLY_SRVC_AGE_STAT T1
+				WHERE T1.AGRDE_SECD = '7'
+			) A
+			<![CDATA[
+			WHERE A.NUM <= 10
+			]]>
+		) A
+		LEFT OUTER JOIN TBCA_SRVC_CD B
+		ON B.SRVC_CD = A.SRVC_CD
+		ORDER BY A.TYPE, A.CNT DESC
+    </select>
+    <select id="selectExcelForSrvc" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+		        SELECT
+		        	A.DT
+					,A.SRVC_CD
+					,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+				FROM (
+					SELECT
+						T1.DT
+						,T1.SRVC_CD
+						,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.SRVC_CD
+							,A.CNT
+						FROM TBCA_DLY_SRVC_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.DT != #{param.CURRENT_DATE}
+						AND A.SRVC_CD != '0000'
+						AND A.SRVC_CD != '0001'
+						AND A.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,A.SRVC_CD
+									,SUM(A.CNT) AS CNT
+							FROM TBCA_MLY_SRVC_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							AND A.SRVC_CD != '0000'
+							AND A.SRVC_CD != '0001'
+							AND A.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+							GROUP BY A.DT, A.SRVC_CD
+						) A
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.DT, A.SRVC_CD
+			</when>
+			<otherwise>
+				SELECT
+		        	A.DT
+					,A.SRVC_CD
+					,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+				FROM (
+					SELECT 
+						T1.DT
+						,T1.SRVC_CD
+						,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.SRVC_CD
+							,A.CNT
+						FROM TBCA_DLY_SRVC_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.SRVC_CD != '0000'
+						AND A.SRVC_CD != '0001'
+						AND A.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.DT, A.SRVC_CD
+			</otherwise>
+		</choose>
+    </select>
+    <select id="selectExcelForLstSrvc" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+		        SELECT
+		        	A.DT
+					,A.SRVC_CD
+					,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+				FROM (
+			        SELECT 
+						T1.DT
+						,T1.SRVC_CD
+						,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.SRVC_CD
+							,A.CNT
+						FROM TBCA_DLY_LAST_SRVC_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.DT != #{param.CURRENT_DATE}
+						AND A.SRVC_CD != '0000'
+						AND A.SRVC_CD != '0001'
+						AND A.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,A.SRVC_CD
+									,SUM(A.CNT) AS CNT
+							FROM TBCA_MLY_LAST_SRVC_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							AND A.SRVC_CD != '0000'
+							AND A.SRVC_CD != '0001'
+							AND A.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+							GROUP BY A.DT, A.SRVC_CD
+						) A
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.DT, A.SRVC_CD
+			</when>
+			<otherwise>
+				SELECT
+		        	A.DT
+					,A.SRVC_CD
+					,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+				FROM (
+			        SELECT 
+						T1.DT
+						,T1.SRVC_CD
+						,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.SRVC_CD
+							,'' AS TRAN_NM
+							,A.CNT
+						FROM TBCA_DLY_LAST_SRVC_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.SRVC_CD != '0000'
+						AND A.SRVC_CD != '0001'
+						AND A.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.DT, A.SRVC_CD
+			</otherwise>
+		</choose>
+    </select>
+    <select id="selectExcelForCnslrConn" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+		        SELECT
+		        	A.DT
+					,A.SRVC_CD
+					,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+				FROM (
+					SELECT 
+						T1.DT
+						,T1.SRVC_CD
+						,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.SRVC_CD
+							,A.CNT
+						FROM TBCA_DLY_SRVC_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.DT != #{param.CURRENT_DATE}
+						AND A.SRVC_CD LIKE '5%'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,A.SRVC_CD
+									,SUM(A.CNT) AS CNT
+							FROM TBCA_MLY_SRVC_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							AND A.SRVC_CD LIKE '5%'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+							GROUP BY A.DT, A.SRVC_CD
+						) A
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.DT, A.SRVC_CD
+			</when>
+			<otherwise>
+				SELECT
+		        	A.DT
+					,A.SRVC_CD
+					,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+					,A.CNT
+				FROM (
+			        SELECT
+						T1.DT
+						,T1.SRVC_CD
+						,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.SRVC_CD
+							,A.CNT
+						FROM TBCA_DLY_SRVC_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.SRVC_CD LIKE '5%'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY A.DT, A.SRVC_CD
+			</otherwise>
+		</choose>
+    </select>
+    <select id="selectExcelForTimeout" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+				SELECT
+					A.DT
+					,A.TRAN_CD
+					,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+					,A.CNT
+				FROM (
+			        SELECT
+						   T1.DT
+					       ,T1.TRAN_CD
+					       ,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.TRAN_CD
+							,A.CNT
+						FROM TBCA_DLY_TR_TIMEOUT_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.DT != #{param.CURRENT_DATE}
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,A.TRAN_CD
+									,SUM(A.CNT) AS CNT
+							FROM TBCA_MLY_TR_TIMEOUT_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							GROUP BY A.DT, A.TRAN_CD
+						) A
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_TR_CD B
+				ON B.TRAN_CD = A.TRAN_CD
+				ORDER BY A.DT, A.TRAN_CD
+			</when>
+			<otherwise>
+				SELECT
+					A.DT
+					,A.TRAN_CD
+					,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+					,A.CNT
+				FROM (
+			        SELECT
+					   T1.DT
+				       ,T1.TRAN_CD
+				       ,T1.CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.TRAN_CD
+							,A.CNT
+						FROM TBCA_DLY_TR_TIMEOUT_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+					) T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+				) A
+				LEFT OUTER JOIN TBCA_TR_CD B
+				ON B.TRAN_CD = A.TRAN_CD
+				ORDER BY A.DT, A.TRAN_CD
+			</otherwise>
+		</choose>
+    </select>
+	<select id="selectExcelSrvcUserStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+        	A.DT
+			,A.SRVC_CD
+			,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+			,A.CNT1
+			,A.CNT2
+			,A.CNT3
+		FROM (
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+				SELECT
+					T1.DT
+					,T1.SRVC_CD
+					,SUM(CASE WHEN T1.USER_SECD = '1' THEN T1.CNT ELSE 0 END) AS CNT1
+					,SUM(CASE WHEN T1.USER_SECD = '2' THEN T1.CNT ELSE 0 END) AS CNT2
+					,SUM(CASE WHEN T1.USER_SECD = '3' THEN T1.CNT ELSE 0 END) AS CNT3
+				FROM (
+					SELECT
+						A.DT
+						,A.USER_SECD
+						,A.SRVC_CD
+						,A.CNT
+					FROM TBCA_DLY_SRVC_USER_STAT A
+					<![CDATA[
+					WHERE A.DT >= #{param.FROM_DT}
+					AND A.DT <= #{param.TO_DT}
+					]]>
+					AND A.DT != #{param.CURRENT_DATE}
+					AND A.SRVC_CD != '0000'
+					AND A.SRVC_CD != '0001'
+					AND A.SRVC_CD != '0002'
+					AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+					UNION ALL
+					SELECT *
+					FROM (
+						SELECT 
+								A.DT
+								,A.USER_SECD
+								,A.SRVC_CD
+								,SUM(A.CNT) AS CNT
+						FROM TBCA_MLY_SRVC_USER_STAT A
+						WHERE A.DT = #{param.CURRENT_DATE}
+						AND A.SRVC_CD != '0000'
+						AND A.SRVC_CD != '0001'
+						AND A.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+						GROUP BY A.DT, A.USER_SECD, A.SRVC_CD
+					) A
+				) T1
+				INNER JOIN TBCA_CLDR T0
+				ON T0.DT = T1.DT
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+		        GROUP BY T1.DT, T1.SRVC_CD
+    		</when>
+    		<otherwise>
+				SELECT
+					T1.DT
+					,T1.SRVC_CD
+					,SUM(CASE WHEN T1.USER_SECD = '1' THEN T1.CNT ELSE 0 END) AS CNT1
+					,SUM(CASE WHEN T1.USER_SECD = '2' THEN T1.CNT ELSE 0 END) AS CNT2
+					,SUM(CASE WHEN T1.USER_SECD = '3' THEN T1.CNT ELSE 0 END) AS CNT3
+				FROM TBCA_DLY_SRVC_USER_STAT T1
+				INNER JOIN TBCA_CLDR T0
+				ON T0.DT = T1.DT
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+				<![CDATA[
+				WHERE T1.DT >= #{param.FROM_DT}
+				AND T1.DT <= #{param.TO_DT}
+				]]>
+				AND T1.SRVC_CD != '0000'
+				AND T1.SRVC_CD != '0001'
+				AND T1.SRVC_CD != '0002'
+				AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+		        GROUP BY T1.DT, T1.SRVC_CD
+    		</otherwise>
+    	</choose>
+    	) A
+		LEFT OUTER JOIN TBCA_SRVC_CD B
+		ON B.SRVC_CD = A.SRVC_CD
+		ORDER BY A.DT, A.SRVC_CD
+    </select>
+    <select id="selectExcelSrvcAgeStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">SELECT
+        	A.DT
+			,A.SRVC_CD
+			,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS SRVC_NM
+			,A.CNT2
+			,A.CNT3
+			,A.CNT4
+			,A.CNT5
+			,A.CNT6
+			,A.CNT7
+		FROM (
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+				SELECT
+					T1.DT
+					,T1.SRVC_CD
+					,SUM(CASE WHEN T1.AGRDE_SECD = '2' THEN T1.CNT ELSE 0 END) AS CNT2
+					,SUM(CASE WHEN T1.AGRDE_SECD = '3' THEN T1.CNT ELSE 0 END) AS CNT3
+					,SUM(CASE WHEN T1.AGRDE_SECD = '4' THEN T1.CNT ELSE 0 END) AS CNT4
+					,SUM(CASE WHEN T1.AGRDE_SECD = '5' THEN T1.CNT ELSE 0 END) AS CNT5
+					,SUM(CASE WHEN T1.AGRDE_SECD = '6' THEN T1.CNT ELSE 0 END) AS CNT6
+					,SUM(CASE WHEN T1.AGRDE_SECD = '7' THEN T1.CNT ELSE 0 END) AS CNT7
+				FROM (
+					SELECT
+						A.DT
+						,A.AGRDE_SECD
+						,A.SRVC_CD
+						,A.CNT
+					FROM TBCA_DLY_SRVC_AGE_STAT A
+					<![CDATA[
+					WHERE A.DT >= #{param.FROM_DT}
+					AND A.DT <= #{param.TO_DT}
+					]]>
+					AND A.DT != #{param.CURRENT_DATE}
+					AND A.SRVC_CD != '0000'
+					AND A.SRVC_CD != '0001'
+					AND A.SRVC_CD != '0002'
+					AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+					UNION ALL
+					SELECT *
+					FROM (
+						SELECT 
+								A.DT
+								,A.AGRDE_SECD
+								,A.SRVC_CD
+								,SUM(A.CNT) AS CNT
+						FROM TBCA_MLY_SRVC_AGE_STAT A
+						WHERE A.DT = #{param.CURRENT_DATE}
+						AND A.SRVC_CD != '0000'
+						AND A.SRVC_CD != '0001'
+						AND A.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = A.SRVC_CD)
+						GROUP BY A.DT, A.AGRDE_SECD, A.SRVC_CD
+					) A
+				) T1
+				INNER JOIN TBCA_CLDR T0
+				ON T0.DT = T1.DT
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+		        GROUP BY T1.DT, T1.SRVC_CD
+    		</when>
+    		<otherwise>
+				SELECT
+					T1.DT
+					,T1.SRVC_CD
+					,SUM(CASE WHEN T1.AGRDE_SECD = '2' THEN T1.CNT ELSE 0 END) AS CNT2
+					,SUM(CASE WHEN T1.AGRDE_SECD = '3' THEN T1.CNT ELSE 0 END) AS CNT3
+					,SUM(CASE WHEN T1.AGRDE_SECD = '4' THEN T1.CNT ELSE 0 END) AS CNT4
+					,SUM(CASE WHEN T1.AGRDE_SECD = '5' THEN T1.CNT ELSE 0 END) AS CNT5
+					,SUM(CASE WHEN T1.AGRDE_SECD = '6' THEN T1.CNT ELSE 0 END) AS CNT6
+					,SUM(CASE WHEN T1.AGRDE_SECD = '7' THEN T1.CNT ELSE 0 END) AS CNT7
+				FROM TBCA_DLY_SRVC_AGE_STAT T1
+				INNER JOIN TBCA_CLDR T0
+				ON T0.DT = T1.DT
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+				<![CDATA[
+				WHERE T1.DT >= #{param.FROM_DT}
+				AND T1.DT <= #{param.TO_DT}
+				]]>
+				AND T1.SRVC_CD != '0000'
+				AND T1.SRVC_CD != '0001'
+				AND T1.SRVC_CD != '0002'
+				AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+		        GROUP BY T1.DT, T1.SRVC_CD
+    		</otherwise>
+    	</choose>
+    	) A
+		LEFT OUTER JOIN TBCA_SRVC_CD B
+		ON B.SRVC_CD = A.SRVC_CD
+		ORDER BY A.DT, A.SRVC_CD
+    </select>
+</mapper>

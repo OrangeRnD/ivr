@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.use.tr.dao.UseTrDAO">
+	<select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        <choose>
+    		<when test="param.SRVC_CD != null and param.SRVC_CD != ''">
+    			SELECT
+    				COUNT(A.TRAN_CD)
+    			FROM (
+	    			SELECT 
+						T1.TRAN_CD
+					FROM TBCA_IVR_TR_RCPTN_LOG T1
+					WHERE T1.SRVC_CD = #{param.SRVC_CD} 
+					AND EXISTS(SELECT 1 FROM TBCA_IVR_LOG ST1
+							<![CDATA[
+							WHERE ST1.LDIN_DT >= #{param.FROM_TM}
+							AND ST1.LDIN_DT <= #{param.TO_TM}
+							]]>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.USER_SECD = #{param.USER_SECD} 
+					        </if>
+							<![CDATA[
+							AND ST1.DT >= #{param.FROM_DT}
+							AND ST1.DT <= #{param.TO_DT}
+							]]>
+					        <if test="param.TELNO != null and param.TELNO != ''">
+					            AND ST1.TELNO = #{param.TELNO} 
+					        </if>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.RGSNO = #{param.RGSNO} 
+					        </if>
+							AND ST1.DT = T1.DT
+							AND ST1.ICID = T1.ICID)
+					GROUP BY T1.TRAN_CD
+				) A
+    		</when>
+    		<otherwise>
+    			SELECT
+    				COUNT(A.SRVC_CD)
+    			FROM (
+	    			SELECT 
+						T1.SRVC_CD
+					FROM TBCA_IVR_TR_RCPTN_LOG T1
+					WHERE T1.SRVC_CD != '0000'
+					AND T1.SRVC_CD != '0001' 
+					AND T1.SRVC_CD != '0002' 
+					AND T1.TRAN_CD = #{param.TRAN_CD} 
+					AND EXISTS(SELECT 1 FROM TBCA_IVR_LOG ST1
+							<![CDATA[
+							WHERE ST1.LDIN_DT >= #{param.FROM_TM}
+							AND ST1.LDIN_DT <= #{param.TO_TM}
+							]]>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.USER_SECD = #{param.USER_SECD} 
+					        </if>
+							<![CDATA[
+							AND ST1.DT >= #{param.FROM_DT}
+							AND ST1.DT <= #{param.TO_DT}
+							]]>
+					        <if test="param.TELNO != null and param.TELNO != ''">
+					            AND ST1.TELNO = #{param.TELNO} 
+					        </if>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.RGSNO = #{param.RGSNO} 
+					        </if>
+							AND ST1.DT = T1.DT
+							AND ST1.ICID = T1.ICID)
+					GROUP BY T1.SRVC_CD
+				) A
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.SRVC_CD != null and param.SRVC_CD != ''">
+    			SELECT
+    				A.TRAN_CD AS CD
+    				,A.CNT
+    				,A.ERR_CNT
+    				,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS NM
+    			FROM (
+	    			SELECT 
+						T1.TRAN_CD
+						,COUNT(T1.RCPTN_SN) AS CNT
+						,SUM(CASE WHEN T1.ERR_CD != 'NONE' THEN 1 ELSE 0 END) AS ERR_CNT
+					FROM TBCA_IVR_TR_RCPTN_LOG T1
+					WHERE T1.SRVC_CD = #{param.SRVC_CD} 
+					AND EXISTS(SELECT 1 FROM TBCA_IVR_LOG ST1
+							<![CDATA[
+							WHERE ST1.LDIN_DT >= #{param.FROM_TM}
+							AND ST1.LDIN_DT <= #{param.TO_TM}
+							]]>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.USER_SECD = #{param.USER_SECD} 
+					        </if>
+							<![CDATA[
+							AND ST1.DT >= #{param.FROM_DT}
+							AND ST1.DT <= #{param.TO_DT}
+							]]>
+					        <if test="param.TELNO != null and param.TELNO != ''">
+					            AND ST1.TELNO = #{param.TELNO} 
+					        </if>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.RGSNO = #{param.RGSNO} 
+					        </if>
+							AND ST1.DT = T1.DT
+							AND ST1.ICID = T1.ICID)
+					GROUP BY T1.TRAN_CD
+				) A
+				LEFT OUTER JOIN TBCA_TR_CD B
+				ON B.TRAN_CD = A.TRAN_CD
+				ORDER BY B.TRAN_NM
+		        <if test="limit != null and limit != ''">
+		            LIMIT ${limit}
+		        </if>
+    		</when>
+    		<otherwise>
+    			SELECT
+    				A.SRVC_CD AS CD
+    				,A.CNT
+    				,A.ERR_CNT
+    				,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS NM
+    			FROM (
+	    			SELECT 
+						T1.SRVC_CD
+						,COUNT(T1.RCPTN_SN) AS CNT
+						,SUM(CASE WHEN T1.ERR_CD != 'NONE' THEN 1 ELSE 0 END) AS ERR_CNT
+					FROM TBCA_IVR_TR_RCPTN_LOG T1
+					WHERE T1.SRVC_CD != '0000'
+					AND T1.SRVC_CD != '0001' 
+					AND T1.SRVC_CD != '0002' 
+					AND T1.TRAN_CD = #{param.TRAN_CD} 
+					AND EXISTS(SELECT 1 FROM TBCA_IVR_LOG ST1
+							<![CDATA[
+							WHERE ST1.LDIN_DT >= #{param.FROM_TM}
+							AND ST1.LDIN_DT <= #{param.TO_TM}
+							]]>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.USER_SECD = #{param.USER_SECD} 
+					        </if>
+							<![CDATA[
+							AND ST1.DT >= #{param.FROM_DT}
+							AND ST1.DT <= #{param.TO_DT}
+							]]>
+					        <if test="param.TELNO != null and param.TELNO != ''">
+					            AND ST1.TELNO = #{param.TELNO} 
+					        </if>
+					        <if test="param.RGSNO != null and param.RGSNO != ''">
+					            AND ST1.RGSNO = #{param.RGSNO} 
+					        </if>
+							AND ST1.DT = T1.DT
+							AND ST1.ICID = T1.ICID)
+					GROUP BY T1.SRVC_CD
+				) A
+				LEFT OUTER JOIN TBCA_SRVC_CD B
+				ON B.SRVC_CD = A.SRVC_CD
+				ORDER BY B.SRVC_NM
+		        <if test="limit != null and limit != ''">
+		            LIMIT ${limit}
+		        </if>
+    		</otherwise>
+    	</choose>
+    </select>
+</mapper>

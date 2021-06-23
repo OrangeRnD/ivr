@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.lgnhist.dao.LgnHistDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.lgnhist.vo.LgnHistVO" useGeneratedKeys="true" keyColumn="LGN_HIST_ID" keyProperty="lgnHistId">
+        INSERT INTO TBCA_LGN_HIST (
+           EMP_NR
+            ,LGN_STS_SECD
+            ,LGN_DT
+            ,LGN_IP
+            ,USR_ID
+        ) VALUES (
+            #{empNr}
+            ,#{lgnStsSecd}
+            ,#{lgnDt}
+            ,#{lgnIp}
+            ,#{usrId}
+        )
+    </insert>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.LGN_HIST_ID)
+        FROM TBCA_LGN_HIST T1
+        <if test="param.EMP_NM != null and param.EMP_NM != ''">
+	        LEFT OUTER JOIN TBCA_USR T2
+	        ON T2.USR_ID = T1.USR_ID
+        </if>
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        <if test="param.EMP_NM != null and param.EMP_NM != ''">
+            <bind name="pattern_EMP_NM" value="'%' + param.EMP_NM + '%'" />            
+            AND T2.EMP_NM LIKE #{pattern_EMP_NM} 
+        </if>
+        <if test="param.EMP_NR != null and param.EMP_NR != ''">
+            AND T1.EMP_NR = #{param.EMP_NR} 
+        </if>
+        <if test="param.LGN_STS_SECD != null and param.LGN_STS_SECD != ''">
+            AND T1.LGN_STS_SECD = #{param.LGN_STS_SECD} 
+        </if>
+        <if test="param.USR_ID != null and param.USR_ID != ''">
+            AND T1.USR_ID = #{param.USR_ID}
+        </if>
+        </trim>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.LGN_HIST_ID
+               ,T1.EMP_NR
+               ,T1.LGN_STS_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'LGN_STS_SECD' AND ST1.CD = T1.LGN_STS_SECD) AS LGN_STS_NM
+               ,T1.LGN_DT
+               ,T1.LGN_IP
+               ,T1.USR_ID
+               ,T2.EMP_NM
+        FROM TBCA_LGN_HIST T1
+        LEFT OUTER JOIN TBCA_USR T2
+        ON T2.USR_ID = T1.USR_ID
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        <if test="param.EMP_NM != null and param.EMP_NM != ''">
+            <bind name="pattern_EMP_NM" value="'%' + param.EMP_NM + '%'" />            
+            AND T2.EMP_NM LIKE #{pattern_EMP_NM} 
+        </if>
+        <if test="param.EMP_NR != null and param.EMP_NR != ''">
+            AND T1.EMP_NR = #{param.EMP_NR} 
+        </if>
+        <if test="param.LGN_STS_SECD != null and param.LGN_STS_SECD != ''">
+            AND T1.LGN_STS_SECD = #{param.LGN_STS_SECD} 
+        </if>
+        <if test="param.USR_ID != null and param.USR_ID != ''">
+            AND T1.USR_ID = #{param.USR_ID}
+        </if>
+        </trim>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.LGN_HIST_ID DESC
+        </if>
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.EMP_NR
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'LGN_STS_SECD' AND ST1.CD = T1.LGN_STS_SECD) AS LGN_STS_NM
+               ,T1.LGN_DT
+               ,T1.LGN_IP
+               ,T2.EMP_NM
+        FROM TBCA_LGN_HIST T1
+        LEFT OUTER JOIN TBCA_USR T2
+        ON T2.USR_ID = T1.USR_ID
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        <if test="param.EMP_NM != null and param.EMP_NM != ''">
+            <bind name="pattern_EMP_NM" value="'%' + param.EMP_NM + '%'" />            
+            AND T2.EMP_NM LIKE #{pattern_EMP_NM} 
+        </if>
+        <if test="param.EMP_NR != null and param.EMP_NR != ''">
+            AND T1.EMP_NR = #{param.EMP_NR} 
+        </if>
+        <if test="param.LGN_STS_SECD != null and param.LGN_STS_SECD != ''">
+            AND T1.LGN_STS_SECD = #{param.LGN_STS_SECD} 
+        </if>
+        <if test="param.USR_ID != null and param.USR_ID != ''">
+            AND T1.USR_ID = #{param.USR_ID}
+        </if>
+        </trim>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.LGN_HIST_ID DESC
+        </if>
+    </select>
+</mapper>

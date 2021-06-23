@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.main.dashboard.dao.DashboardDAO">
+    <select id="selectListArs" parameterType="string" resultType="hashMap">
+		SELECT 
+			'P' AS CD
+			,'' AS NM
+			,A.TOT_CNT
+		FROM (
+			SELECT 
+				SUM(T1.CALL_CNT) AS TOT_CNT
+			FROM TBCA_MLY_INPTH_LDIN_STAT T1
+			WHERE T1.DT = #{dt}
+			AND NOT(T1.INPTH_SECD != '1' AND T1.INPTH_SECD != '2')
+		) A
+    	UNION ALL
+    	SELECT *
+    	FROM (
+	        SELECT
+				B.CD
+				,B.CD_NM AS NM
+				,A.TOT_CNT
+			FROM TBCA_CD B
+			LEFT OUTER JOIN (
+				SELECT *
+				FROM (	
+					SELECT 
+						T1.CALL_KND_SECD
+						,SUM(T1.CNT) AS TOT_CNT
+					FROM TBCA_MLY_CALL_KND_STAT T1
+					WHERE T1.DT = #{dt}
+					AND NOT(T1.CALL_KND_SECD != '3' AND T1.CALL_KND_SECD != '2')
+					GROUP BY T1.CALL_KND_SECD
+				) A
+			) A
+			ON A.CALL_KND_SECD = B.CD
+			WHERE B.DEL_ALTV = 0
+			AND B.USE_ALTV = 1
+			AND NOT(B.CD != '3' AND B.CD != '2')
+			AND B.CD_CLSFCTN = 'CALL_KND_SECD'
+			GROUP BY B.CD, B.CD_NM
+			ORDER BY B.SORT_ORDR
+		) A	
+    </select>
+    <select id="selectTrErr" parameterType="string" resultType="hashMap">
+		SELECT 
+			SUM(T1.TR_CNT) AS TR_CNT
+			,SUM(T1.ERR_CNT) AS ERR_CNT
+		FROM TBCA_MLY_LDIN_STAT T1
+		WHERE T1.DT = #{dt}
+    </select>
+    <select id="selectListPlcyRslt" resultType="hashMap">
+        SELECT
+			T2.ANLYS_PLCY_ID
+	       ,T2.ANLYS_PLCY_NM
+	       ,T1.EXCLSN_STDVAL
+	       ,T1.NOTIFTN_STDVAL
+	       ,T1.SMS_XMSN_ALTV
+	       ,T1.EMAIL_XMSN_ALTV
+		   ,T1.OCCRRNC_DT
+            ,T1.OCCRRNC_CNT
+            ,T1.CMPR_CNT
+		FROM TBCA_ANLYS_PLCY_RSLT T1
+		INNER JOIN TBCA_ANLYS_PLCY T2
+		ON T2.DEL_ALTV = 0
+		AND T2.ANLYS_PLCY_ID = T1.ANLYS_PLCY_ID
+		ORDER BY T1.ANLYS_PLCY_RSLT_SN DESC
+		LIMIT 0, 3
+    </select>
+</mapper>

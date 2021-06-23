@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.analysis.pattern.dao.AnalysisPatternDAO">
+	<select id="selectTotalCnt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+		SELECT COUNT(*)
+		FROM (
+			SELECT 
+				T1.RGSNO
+				,T1.TELNO
+			FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT}
+			AND T1.DT <= #{param.TO_DT}
+			]]>
+			GROUP BY T1.RGSNO, T1.TELNO
+		) A
+	</select>
+	<select id="selectTotalDlyLdinUserCnt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+		SELECT COUNT(*) AS USER_CNT
+		FROM (
+			SELECT 
+				T1.RGSNO
+				,T1.TELNO
+			FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT}
+			AND T1.DT <= #{param.TO_DT}
+			]]>
+			GROUP BY T1.RGSNO, T1.TELNO
+		) A
+	</select>
+	<select id="selectListStdVal" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+		WITH USER_DLNGPTRN_STAT(RGSNO, TELNO, CALL_CNT, CNSLR_CONN_CNT, CALL_TRAN_CNT, AVG_USE_TM) AS (
+			SELECT 
+				T1.RGSNO
+				,T1.TELNO
+				,SUM(T1.CALL_CNT) AS CALL_CNT
+				,SUM(T1.CNSLR_CONN_CNT) AS CNSLR_CONN_CNT
+				,SUM(T1.CALL_TRAN_CNT) AS CALL_TRAN_CNT
+				,CAST(AVG(T1.AVG_USE_TM/T1.CALL_CNT) AS UNSIGNED INT) AS AVG_USE_TM
+			FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT}
+			AND T1.DT <= #{param.TO_DT}
+			]]>
+			GROUP BY T1.RGSNO, T1.TELNO
+		)
+		SELECT 1 AS TYPE
+			,A.CALL_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_CNT) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 2 AS TYPE
+			,A.CALL_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_CNT DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 3 AS TYPE
+			,A.CNSLR_CONN_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CNSLR_CONN_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CNSLR_CONN_CNT) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 4 AS TYPE
+			,A.CNSLR_CONN_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CNSLR_CONN_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CNSLR_CONN_CNT DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 5 AS TYPE
+			,A.CALL_TRAN_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_TRAN_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_TRAN_CNT) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 6 AS TYPE
+			,A.CALL_TRAN_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_TRAN_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_TRAN_CNT DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 7 AS TYPE
+			,A.AVG_USE_TM AS CNT
+		FROM (
+			SELECT 
+				ST1.AVG_USE_TM
+				,ROW_NUMBER() OVER(ORDER BY ST1.AVG_USE_TM) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 8 AS TYPE
+			,A.AVG_USE_TM AS CNT
+		FROM (
+			SELECT 
+				ST1.AVG_USE_TM
+				,ROW_NUMBER() OVER(ORDER BY ST1.AVG_USE_TM DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+	</select>
+
+	<select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+		WITH USER_DLNGPTRN_STAT(RGSNO, TELNO, USER_SECD, AGRDE_SECD, CALL_CNT, CNSLR_CONN_CNT, CALL_TRAN_CNT, AVG_USE_TM) AS ( 
+			SELECT *
+			FROM ( 
+				SELECT 
+					T1.RGSNO
+					,T1.TELNO
+					,MAX(T1.USER_SECD) AS USER_SECD
+					,MAX(T1.AGRDE_SECD) AS AGRDE_SECD
+					,SUM(T1.CALL_CNT) AS CALL_CNT
+					,SUM(T1.CNSLR_CONN_CNT) AS CNSLR_CONN_CNT
+					,SUM(T1.CALL_TRAN_CNT) AS CALL_TRAN_CNT
+					,CAST(AVG(T1.AVG_USE_TM/T1.CALL_CNT) AS UNSIGNED INT) AS AVG_USE_TM
+				FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+				<![CDATA[
+				WHERE T1.DT >= #{param.FROM_DT}
+				AND T1.DT <= #{param.TO_DT}
+				]]>
+				GROUP BY T1.RGSNO, T1.TELNO
+			) T1
+			WHERE 1 = 1
+			<if test="param.CALL_L != null and param.CALL_L != ''">
+				<![CDATA[
+				AND T1.CALL_CNT <= #{param.CALL_L}
+				]]>
+	        </if>
+			<if test="param.CALL_M_F != null and param.CALL_M_T != ''">
+				<![CDATA[
+				AND T1.CALL_CNT >= #{param.CALL_M_F}
+				AND T1.CALL_CNT <= #{param.CALL_M_T}
+				]]>
+	        </if>
+			<if test="param.CALL_U != null and param.CALL_U != ''">
+				<![CDATA[
+				AND T1.CALL_CNT >= #{param.CALL_U}
+				]]>
+	        </if>
+	        
+			<if test="param.CNSLR_CONN_L != null and param.CNSLR_CONN_L != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_L}
+				]]>
+	        </if>
+			<if test="param.CNSLR_CONN_M_F != null and param.CNSLR_CONN_M_T != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_M_F}
+				AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_M_T}
+				]]>
+	        </if>
+			<if test="param.CNSLR_CONN_U != null and param.CNSLR_CONN_U != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_U}
+				]]>
+	        </if>
+	        
+			<if test="param.CALL_TRAN_L != null and param.CALL_TRAN_L != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT <= #{param.CALL_TRAN_L}
+				]]>
+	        </if>
+			<if test="param.CALL_TRAN_M_F != null and param.CALL_TRAN_M_T != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT >= #{param.CALL_TRAN_M_F}
+				AND T1.CALL_TRAN_CNT <= #{param.CALL_TRAN_M_T}
+				]]>
+	        </if>
+			<if test="param.CALL_TRAN_U != null and param.CALL_TRAN_U != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT >= #{param.CALL_TRAN_U}
+				]]>
+	        </if>
+	        
+			<if test="param.AVG_USE_TM_L != null and param.AVG_USE_TM_L != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM <= #{param.AVG_USE_TM_L}
+				]]>
+	        </if>
+			<if test="param.AVG_USE_TM_M_F != null and param.AVG_USE_TM_M_T != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM >= #{param.AVG_USE_TM_M_F}
+				AND T1.AVG_USE_TM <= #{param.AVG_USE_TM_M_T}
+				]]>
+	        </if>
+			<if test="param.AVG_USE_TM_U != null and param.AVG_USE_TM_U != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM >= #{param.AVG_USE_TM_U}
+				]]>
+	        </if>
+		), USER_DLNGPTRN_STAT2(RGSNO, TELNO, USER_SECD, AGRDE_SECD, CALL_CNT, CNSLR_CONN_CNT, CALL_TRAN_CNT, AVG_USE_TM) AS ( 
+			SELECT *
+			FROM ( 
+				SELECT 
+					T1.RGSNO
+					,T1.TELNO
+					,MAX(T1.USER_SECD) AS USER_SECD
+					,MAX(T1.AGRDE_SECD) AS AGRDE_SECD
+					,SUM(T1.CALL_CNT) AS CALL_CNT
+					,SUM(T1.CNSLR_CONN_CNT) AS CNSLR_CONN_CNT
+					,SUM(T1.CALL_TRAN_CNT) AS CALL_TRAN_CNT
+					,CAST(AVG(T1.AVG_USE_TM/T1.CALL_CNT) AS UNSIGNED INT) AS AVG_USE_TM
+				FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+				<![CDATA[
+				WHERE T1.DT >= #{param.FROM_DT}
+				AND T1.DT <= #{param.TO_DT}
+				]]>
+				GROUP BY T1.RGSNO, T1.TELNO
+			) T1
+			WHERE 1 = 1
+			<if test="param.CALL_L != null and param.CALL_L != ''">
+				<![CDATA[
+				AND T1.CALL_CNT <= #{param.CALL_L}
+				]]>
+	        </if>
+			<if test="param.CALL_M_F != null and param.CALL_M_T != ''">
+				<![CDATA[
+				AND T1.CALL_CNT >= #{param.CALL_M_F}
+				AND T1.CALL_CNT <= #{param.CALL_M_T}
+				]]>
+	        </if>
+			<if test="param.CALL_U != null and param.CALL_U != ''">
+				<![CDATA[
+				AND T1.CALL_CNT >= #{param.CALL_U}
+				]]>
+	        </if>
+	        
+			<if test="param.CNSLR_CONN_L != null and param.CNSLR_CONN_L != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_L}
+				]]>
+	        </if>
+			<if test="param.CNSLR_CONN_M_F != null and param.CNSLR_CONN_M_T != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_M_F}
+				AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_M_T}
+				]]>
+	        </if>
+			<if test="param.CNSLR_CONN_U != null and param.CNSLR_CONN_U != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_U}
+				]]>
+	        </if>
+	        
+			<if test="param.CALL_TRAN_L != null and param.CALL_TRAN_L != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT <= #{param.CALL_TRAN_L}
+				]]>
+	        </if>
+			<if test="param.CALL_TRAN_M_F != null and param.CALL_TRAN_M_T != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT >= #{param.CALL_TRAN_M_F}
+				AND T1.CALL_TRAN_CNT <= #{param.CALL_TRAN_M_T}
+				]]>
+	        </if>
+			<if test="param.CALL_TRAN_U != null and param.CALL_TRAN_U != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT >= #{param.CALL_TRAN_U}
+				]]>
+	        </if>
+	        
+			<if test="param.AVG_USE_TM_L != null and param.AVG_USE_TM_L != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM <= #{param.AVG_USE_TM_L}
+				]]>
+	        </if>
+			<if test="param.AVG_USE_TM_M_F != null and param.AVG_USE_TM_M_T != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM >= #{param.AVG_USE_TM_M_F}
+				AND T1.AVG_USE_TM <= #{param.AVG_USE_TM_M_T}
+				]]>
+	        </if>
+			<if test="param.AVG_USE_TM_U != null and param.AVG_USE_TM_U != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM >= #{param.AVG_USE_TM_U}
+				]]>
+	        </if>
+		), USER_DLNGPTRN_STAT3(RGSNO, TELNO, USER_SECD, AGRDE_SECD, CALL_CNT, CNSLR_CONN_CNT, CALL_TRAN_CNT, AVG_USE_TM) AS ( 
+			SELECT *
+			FROM ( 
+				SELECT 
+					T1.RGSNO
+					,T1.TELNO
+					,MAX(T1.USER_SECD) AS USER_SECD
+					,MAX(T1.AGRDE_SECD) AS AGRDE_SECD
+					,SUM(T1.CALL_CNT) AS CALL_CNT
+					,SUM(T1.CNSLR_CONN_CNT) AS CNSLR_CONN_CNT
+					,SUM(T1.CALL_TRAN_CNT) AS CALL_TRAN_CNT
+					,CAST(AVG(T1.AVG_USE_TM/T1.CALL_CNT) AS UNSIGNED INT) AS AVG_USE_TM
+				FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+				<![CDATA[
+				WHERE T1.DT >= #{param.FROM_DT}
+				AND T1.DT <= #{param.TO_DT}
+				]]>
+				GROUP BY T1.RGSNO, T1.TELNO
+			) T1
+			WHERE 1 = 1
+			<if test="param.CALL_L != null and param.CALL_L != ''">
+				<![CDATA[
+				AND T1.CALL_CNT <= #{param.CALL_L}
+				]]>
+	        </if>
+			<if test="param.CALL_M_F != null and param.CALL_M_T != ''">
+				<![CDATA[
+				AND T1.CALL_CNT >= #{param.CALL_M_F}
+				AND T1.CALL_CNT <= #{param.CALL_M_T}
+				]]>
+	        </if>
+			<if test="param.CALL_U != null and param.CALL_U != ''">
+				<![CDATA[
+				AND T1.CALL_CNT >= #{param.CALL_U}
+				]]>
+	        </if>
+	        
+			<if test="param.CNSLR_CONN_L != null and param.CNSLR_CONN_L != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_L}
+				]]>
+	        </if>
+			<if test="param.CNSLR_CONN_M_F != null and param.CNSLR_CONN_M_T != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_M_F}
+				AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_M_T}
+				]]>
+	        </if>
+			<if test="param.CNSLR_CONN_U != null and param.CNSLR_CONN_U != ''">
+				<![CDATA[
+				AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_U}
+				]]>
+	        </if>
+	        
+			<if test="param.CALL_TRAN_L != null and param.CALL_TRAN_L != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT <= #{param.CALL_TRAN_L}
+				]]>
+	        </if>
+			<if test="param.CALL_TRAN_M_F != null and param.CALL_TRAN_M_T != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT >= #{param.CALL_TRAN_M_F}
+				AND T1.CALL_TRAN_CNT <= #{param.CALL_TRAN_M_T}
+				]]>
+	        </if>
+			<if test="param.CALL_TRAN_U != null and param.CALL_TRAN_U != ''">
+				<![CDATA[
+				AND T1.CALL_TRAN_CNT >= #{param.CALL_TRAN_U}
+				]]>
+	        </if>
+	        
+			<if test="param.AVG_USE_TM_L != null and param.AVG_USE_TM_L != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM <= #{param.AVG_USE_TM_L}
+				]]>
+	        </if>
+			<if test="param.AVG_USE_TM_M_F != null and param.AVG_USE_TM_M_T != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM >= #{param.AVG_USE_TM_M_F}
+				AND T1.AVG_USE_TM <= #{param.AVG_USE_TM_M_T}
+				]]>
+	        </if>
+			<if test="param.AVG_USE_TM_U != null and param.AVG_USE_TM_U != ''">
+				<![CDATA[
+				AND T1.AVG_USE_TM >= #{param.AVG_USE_TM_U}
+				]]>
+	        </if>
+		)
+		SELECT *
+		FROM (
+			SELECT 
+				1 AS TYPE
+				,A.CD
+				,A.CD_NM AS NM
+				,A.CNT
+				,A.CD AS SORT
+			FROM (
+				SELECT
+					A.CD
+					,A.CD_NM
+					,CASE WHEN B.CNT IS NULL THEN 0 ELSE B.CNT END AS CNT
+				FROM TBCA_CD A
+				LEFT OUTER JOIN (
+					SELECT 
+						T1.USER_SECD
+						,COUNT(T1.RGSNO) AS CNT
+					FROM USER_DLNGPTRN_STAT T1
+					GROUP BY T1.USER_SECD
+				) B
+				ON B.USER_SECD = A.CD
+				WHERE A.CD_CLSFCTN = 'USER_SECD'
+				ORDER BY A.SORT_ORDR
+			) A
+			UNION ALL
+			SELECT 
+				2 AS TYPE
+				,A.CD
+				,A.CD_NM AS NM
+				,A.CNT
+				,A.CD AS SORT
+			FROM (
+				SELECT
+					A.CD
+					,A.CD_NM
+					,CASE WHEN B.CNT IS NULL THEN 0 ELSE B.CNT END AS CNT
+				FROM TBCA_CD A
+				LEFT OUTER JOIN (
+					SELECT 
+						T1.AGRDE_SECD
+						,COUNT(T1.RGSNO) AS CNT
+					FROM USER_DLNGPTRN_STAT2 T1
+					GROUP BY T1.AGRDE_SECD
+				) B
+				ON B.AGRDE_SECD = A.CD
+				WHERE A.CD_CLSFCTN = 'AGRDE_SECD'
+				ORDER BY A.SORT_ORDR
+			) A
+			UNION All
+			<choose>
+	    	<when test="param.CURRENT_DATE != null">
+			SELECT 
+				3 AS TYPE
+				,A.SRVC_CD AS CD
+				,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS NM
+				,A.CNT
+				,A.NUM AS SORT
+			FROM (
+				SELECT
+					A.SRVC_CD
+					,A.CNT
+					,ROW_NUMBER() OVER(ORDER BY A.CNT DESC) AS NUM
+				FROM (
+					SELECT 
+						T1.SRVC_CD
+						,SUM(T1.CNT) AS CNT
+					FROM (
+						SELECT
+							T1.SRVC_CD
+							,T1.CNT
+						FROM TBCA_DLY_USER_SRVC_STAT T1
+						WHERE EXISTS(SELECT 1
+								FROM USER_DLNGPTRN_STAT3 ST1
+								WHERE ST1.RGSNO = (CASE WHEN T1.RGSNO IS NULL THEN T1.TELNO ELSE T1.RGSNO END)
+								AND ST1.TELNO = T1.TELNO)
+						<![CDATA[
+						AND T1.DT >= #{param.FROM_DT}
+						AND T1.DT <= #{param.TO_DT}
+						]]>
+						AND T1.DT != #{param.CURRENT_DATE}
+						AND T1.SRVC_CD != '0000'
+						AND T1.SRVC_CD != '0001'
+						AND T1.SRVC_CD != '0002'
+						AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT
+								T1.SRVC_CD
+								,SUM(T1.CNT) AS CNT
+							FROM TBCA_MLY_USER_SRVC_STAT T1
+							WHERE EXISTS(SELECT 1
+									FROM USER_DLNGPTRN_STAT3 ST1
+									WHERE ST1.RGSNO = (CASE WHEN T1.RGSNO IS NULL THEN T1.TELNO ELSE T1.RGSNO END)
+									AND ST1.TELNO = T1.TELNO)
+							AND T1.DT = #{param.CURRENT_DATE}
+							AND T1.SRVC_CD != '0000'
+							AND T1.SRVC_CD != '0001'
+							AND T1.SRVC_CD != '0002'
+							AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+							GROUP BY T1.SRVC_CD
+						) A
+					) T1
+					GROUP BY T1.SRVC_CD
+				) A
+				<!-- <![CDATA[
+				WHERE A.NUM <= 5
+				]]> -->
+			) A
+	   		</when>
+	   		<otherwise>
+	   		SELECT 
+				3 AS TYPE
+				,A.SRVC_CD AS CD
+				,(CASE WHEN B.SRVC_NM IS NULL THEN A.SRVC_CD ELSE B.SRVC_NM END) AS NM
+				,A.CNT
+				,A.NUM AS SORT
+			FROM (
+				SELECT
+					A.SRVC_CD
+					,A.CNT
+					,ROW_NUMBER() OVER(ORDER BY A.CNT DESC) AS NUM
+				FROM (
+					SELECT 
+						T1.SRVC_CD
+						,SUM(T1.CNT) AS CNT
+					FROM TBCA_DLY_USER_SRVC_STAT T1
+					WHERE EXISTS(SELECT 1
+							FROM USER_DLNGPTRN_STAT3 ST1
+							WHERE ST1.RGSNO = (CASE WHEN T1.RGSNO IS NULL THEN T1.TELNO ELSE T1.RGSNO END)
+							AND ST1.TELNO = T1.TELNO)
+					<![CDATA[
+					AND T1.DT >= #{param.FROM_DT}
+					AND T1.DT <= #{param.TO_DT}
+					]]>
+					AND T1.SRVC_CD != '0000'
+					AND T1.SRVC_CD != '0001'
+					AND T1.SRVC_CD != '0002'
+					AND NOT EXISTS(SELECT 1 FROM TBCA_SRVC_CD ST1 WHERE ST1.MONITORING_YN = '1' AND ST1.SRVC_CD = T1.SRVC_CD)
+					GROUP BY T1.SRVC_CD
+				) A
+				<!-- <![CDATA[
+				WHERE A.NUM <= 5
+				]]> -->
+			) A
+	   		</otherwise>
+	   		</choose>
+			LEFT OUTER JOIN TBCA_SRVC_CD B
+			ON B.SRVC_CD = A.SRVC_CD
+		) A
+		ORDER BY A.TYPE, A.SORT
+    </select>
+</mapper>

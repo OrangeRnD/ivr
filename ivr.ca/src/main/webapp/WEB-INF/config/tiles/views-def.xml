@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<definition name="main" template="/WEB-INF/views/layout/main_layout.jsp">
+		<put-attribute name="js" value="" />
+		<put-attribute name="content" value="" />
+	</definition>
+	<definition name="blank" template="/WEB-INF/views/layout/blank_layout.jsp">
+		<put-attribute name="content" value="" />
+	</definition>
+	<definition name="popup" template="/WEB-INF/views/layout/popup_layout.jsp">
+		<put-attribute name="js" value="" />
+		<put-attribute name="content" value="" />
+	</definition>
+	<definition name="excel" template="/WEB-INF/views/layout/excel_layout.jsp">
+		<put-attribute name="content" value="" />
+	</definition>
+	<definition name="/error" extends="blank">
+		<put-attribute name="content" value="/WEB-INF/views/common/error.jsp" />
+	</definition>
+	<definition name="/error/*" extends="blank">
+		<put-attribute name="content" value="/WEB-INF/views/common/error_{1}.jsp" />
+	</definition>
+	<definition name="/index/*/*/*" extends="main">
+		<put-attribute name="js" value="/{1}/{1}_{2}" />
+		<put-attribute name="content" value="/WEB-INF/views/ca/{1}/{2}/{3}.jsp" />
+	</definition>
+	<definition name="/popup/*/*/*" extends="popup">
+		<put-attribute name="js" value="/{1}/{1}_{2}" />
+		<put-attribute name="content" value="/WEB-INF/views/ca/{1}/{2}/{3}.jsp" />
+	</definition>
+	<definition name="/excel/*/*/*" extends="excel">
+		<put-attribute name="content" value="/WEB-INF/views/{1}/{2}/{3}.jsp" />
+	</definition>
+	<definition name="/*/*/*" extends="blank">
+		<put-attribute name="content" value="/WEB-INF/views/ca/{1}/{2}/{3}.jsp" />
+	</definition>
+</tiles-definitions>

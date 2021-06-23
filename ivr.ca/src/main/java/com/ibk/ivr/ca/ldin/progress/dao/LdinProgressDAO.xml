@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.ldin.progress.dao.LdinProgressDAO">
+    <select id="selectListDlyLdinStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+		<bind name="PATTERN_YM" value="param.YM + '%'" />  
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+				SELECT
+				       T0.DT
+				       ,T1.CALL_CNT
+				       ,T1.USER_CNT
+				       ,T1.TR_CNT
+				       ,T1.PRCS_DT
+				FROM TBCA_CLDR T0
+				LEFT OUTER JOIN (
+					SELECT 
+						   A.DT
+					       ,A.CALL_CNT
+					       ,A.USER_CNT
+					       ,A.TR_CNT
+					       ,A.PRCS_DT
+					FROM TBCA_DLY_LDIN_STAT A
+		        	WHERE A.DT LIKE #{PATTERN_YM}
+					AND A.DT != #{param.CURRENT_DATE}
+					UNION ALL
+					SELECT *
+					FROM (
+						SELECT 
+							   A.DT
+						       ,SUM(A.CALL_CNT) AS CALL_CNT
+						       ,SUM(A.USER_CNT) AS USER_CNT
+						       ,SUM(A.TR_CNT) AS TR_CNT
+						       ,MAX(A.PRCS_DT) AS PRCS_DT
+						FROM TBCA_MLY_LDIN_STAT A
+						WHERE A.DT = #{param.CURRENT_DATE}
+						GROUP BY A.DT
+					) A
+				)  T1
+				ON T1.DT = T0.DT
+		        WHERE T0.DT LIKE #{PATTERN_YM}
+				ORDER BY T0.DT
+    		</when>
+    		<otherwise>
+				SELECT
+				       T0.DT
+				       ,T1.CALL_CNT
+				       ,T1.USER_CNT
+				       ,T1.TR_CNT
+				       ,T1.PRCS_DT
+				FROM TBCA_CLDR T0
+				LEFT OUTER JOIN TBCA_DLY_LDIN_STAT T1
+				ON T1.DT = T0.DT
+		        WHERE T0.DT LIKE #{PATTERN_YM}
+				ORDER BY T0.DT
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectListMlyLdinStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap"> 
+		<bind name="PATTERN_YEAR" value="param.YEAR + '%'" />    
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+				SELECT
+				       SUBSTR(T0.DT, 1, 6) AS DT
+				       ,SUM(T1.CALL_CNT) AS CALL_CNT
+				       ,SUM(T1.USER_CNT) AS USER_CNT
+				       ,SUM(T1.TR_CNT) AS TR_CNT
+				       ,MAX(T1.PRCS_DT) AS PRCS_DT
+				FROM TBCA_CLDR T0
+				LEFT OUTER JOIN (
+					SELECT 
+						   A.DT
+					       ,A.CALL_CNT
+					       ,A.USER_CNT
+					       ,A.TR_CNT
+					       ,A.PRCS_DT
+					FROM TBCA_DLY_LDIN_STAT A
+		        	WHERE A.DT LIKE #{PATTERN_YEAR}
+					AND A.DT != #{param.CURRENT_DATE}
+					UNION ALL
+					SELECT 
+						   A.DT
+					       ,SUM(A.CALL_CNT) AS CALL_CNT
+					       ,SUM(A.USER_CNT) AS USER_CNT
+					       ,SUM(A.TR_CNT) AS TR_CNT
+					       ,MAX(A.PRCS_DT) AS PRCS_DT
+					FROM TBCA_MLY_LDIN_STAT A
+					WHERE A.DT = #{param.CURRENT_DATE}
+					GROUP BY A.DT
+				)  T1
+				ON T1.DT = T0.DT        
+		        WHERE 1 = 1 
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+		        AND T0.DT LIKE #{PATTERN_YEAR} 
+				GROUP BY SUBSTR(T0.DT, 1, 6)
+				ORDER BY SUBSTR(T0.DT, 1, 6)
+    		</when>
+    		<otherwise>
+				SELECT
+				       SUBSTR(T0.DT, 1, 6) AS DT
+				       ,SUM(T1.CALL_CNT) AS CALL_CNT
+				       ,SUM(T1.USER_CNT) AS USER_CNT
+				       ,SUM(T1.TR_CNT) AS TR_CNT
+				       ,MAX(T1.PRCS_DT) AS PRCS_DT
+				FROM TBCA_CLDR T0
+				LEFT OUTER JOIN TBCA_DLY_LDIN_STAT T1
+				ON T1.DT = T0.DT
+		        WHERE 1 = 1 
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+		            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+		        </if>
+		        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+		            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+		        </if>
+		        AND T0.DT LIKE #{PATTERN_YEAR} 
+				GROUP BY SUBSTR(T0.DT, 1, 6)
+				ORDER BY SUBSTR(T0.DT, 1, 6)
+    		</otherwise>
+    	</choose>
+    </select>
+</mapper>

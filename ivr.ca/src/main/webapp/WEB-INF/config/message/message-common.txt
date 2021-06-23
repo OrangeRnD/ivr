@@ -1,0 +1,76 @@
+error.auth.unauthorized=접근권한이 없습니다.
+error.auth.unusualuser=비정상적인 상태입니다.
+error.auth.notcertified=인증 후에 사용하십시요.
+error.server.system=시스템 오류가 발생하였습니다. 관리자에게 문의하십시요.
+error.server.system.param=시스템 오류가 발생하였습니다. 관리자에게 문의하십시요.(error code: {0}, error msg: {1})
+error.server.nullprogram=해당 프로그램이 존재하지 않습니다. 관리자에게 문의하십시요.
+error.server.methodnotallowed=허용되지 않는 프로그램입니다.
+error.server.unsupportedmediatype=지원하지 않는 미디어 타입니다.
+
+info.server.success=정상적으로 처리되었습니다.
+info.server.withdrawuser=탈퇴한 회원입니다.
+info.server.notfounddata=요청하신 정보가 존재하지 않습니다.
+info.server.notfoundemail=이메일 주소가 존재하지 않습니다.
+info.server.incorrectemail=이메일 주소가 올바르지 않습니다.
+info.server.wrongpassword=비밀번호가 올바르지 않습니다.
+info.server.loginfailed=아이디 또는 비밀번호가 맞지 않습니다.
+info.server.duplicateemail=이미 존재하는 이메일 주소입니다.
+info.server.duplicateloginid=아이디가 이미 존재합니다.
+
+info.server.duplicateprodnm=상품명이 이미 존재합니다.
+
+fail.sql.insert=저장이 실패하였습니다.
+fail.sql.update=수정이 실패하였습니다.
+fail.sql.updateddata=타 사용자에 의해 수정 또는 삭제된 데이터입니다. 재조회 후 수정하십시요.문제가 지속적으로 발생 시 관리자에게 문의하십시요.
+fail.sql.delete=삭제가 실패하였습니다.
+fail.sql.deleteddata=이미 삭제되었거나 존재하지 않는 데이터입니다.
+fail.sql.select=조회가 실패하였습니다.
+fail.server.system=요청하신 작업이 실패하였습니다.
+
+file.upload.error=파일 업로드 시 오류가 발생하였습니다.
+file.download.error=파일 다운로드 시 오류가 발생하였습니다.
+file.upload.fail=파일 업로드에 실패하였습니다.
+file.download.fail=파일 다운로드에 실패하였습니다.
+file.excel.upload.error=파일 업로드 시 문제가 발생하였습니다.({0} 라인, 오류사항 : {1})
+file.excel.upload.empty=엑셀파일에 데이터가 존재하지 않습니다.
+
+info.ui.insert=저장하시겠습니까?
+info.ui.delete=삭제하시겠습니까?
+info.ui.update=수정하시겠습니까?
+info.ui.nodata=데이터가 존재하지 않습니다.
+
+error.ui.required={0}은(는) 필수 입력값입니다.
+error.ui.minlength={0}은(는) {1}자 이상 입력해야 합니다.
+error.ui.maxlength={0}은(는) {1}자 이상 입력할수 없습니다.
+error.ui.invalid={0}은(는) 유효하지 않은 값입니다.
+error.ui.minInteger={0}은(는) 유효한 값이 아닙니다. 1 이상의 값을 입력해야 합니다.
+error.ui.byte={0}은(는) byte타입이어야 합니다.
+error.ui.short={0}은(는) short타입이어야 합니다.
+error.ui.integer={0}은(는) integer타입이어야 합니다.
+error.ui.long={0}은(는) long타입이어야 합니다.
+error.ui.float={0}은(는) float타입이어야 합니다.
+error.ui.double={0}은(는) double타입이어야 합니다.
+error.ui.date={0}은(는) 날짜 유형이 아닙니다.
+error.ui.range={0}은(는) {1}과 {2} 사이의 값이어야 합니다.
+error.ui.creditcard={0}은(는) 유효하지 않은 신용카드 번호입니다.
+error.ui.email={0}은(는) 유효하지 않은 이메일 주소입니다.
+error.ui.ihidnum=유효하지 않은 주민등록번호입니다.
+error.ui.korean={0}은(는) 한글을 입력하셔야 합니다.
+error.ui.english={0}은(는) 영문만 사용하실수 있습니다.
+error.ui.notKorean={0}은(는) 한글을 사용하실수 없습니다.
+error.ui.ip=유효하지 않은 IP주소입니다.
+error.ui.password1={0}은(는) 8~20자 내에서 입력해야 합니다.
+error.ui.password2={0}은(는) 한글,특수문자,띄어쓰기는 허용되지 않습니다.
+error.ui.password3={0}은(는) 순차적인 숫자를 4개이상 연속해서 사용할수 없습니다.
+error.ui.password4={0}은(는) 반복되는 문자나 숫자를 4개이상 연속해서 사용할 수 없습니다.
+
+mail.id.subject=[{0}] 아이디 찾기 안내
+mail.pwd.subject=[{0}] 비밀번호 재설정 안내
+mail.join.subject=[{0}] 회원가입
+
+status.length.error = {0}에 지정된 길이({1})를 초과하였습니다.
+status.integer.value.error = {0}에 숫자만 입력하십시요.
+status.data.length.value.error = {0}에 Date 형식에 맞게 입력하십시요.
+status.data.value.error = {0}에 Date 형식에 맞게 입력하십시요. ({1} 자리)
+status.length.error = {0}에 지정된 형식에 맞게 입력하십시요. ({1} 자리)
+status.null.value.error = {0}에 빈값을 입력할 수 없습니다.

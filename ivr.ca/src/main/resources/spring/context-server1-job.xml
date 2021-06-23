@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+	<task:scheduler id="jobScheduler" pool-size="1" />
+	<task:annotation-driven scheduler="jobScheduler" />
+    
+    <bean id="dailyReportTask" class="com.ibk.ivr.ca.report.daily.task.DailyReportTask"></bean>
+    <bean id="anlysPlcyResultTask" class="com.ibk.ivr.ca.system.policy.task.AnlysPlcyResultTask"></bean>
+    <bean id="cldrTask" class="com.ibk.ivr.ca.system.cldr.task.CldrTask"></bean>
+    
+	<task:scheduled-tasks>
+		<!-- 오전 7 시 -->
+		<task:scheduled ref="dailyReportTask" method="task" cron="0 0 7 * * *" />
+		<!-- 60초 간격(시작시간 기준) -->
+		<task:scheduled ref="anlysPlcyResultTask" method="task" fixed-rate="60000" />
+		<!-- 12월 31일 오전 6 시 -->
+		<task:scheduled ref="cldrTask" method="task" cron="0 0 6 31 12 *" />
+	</task:scheduled-tasks>
+</beans>

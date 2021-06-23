@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.data.overtr.dao.DataOverTrDAO">
+	<select id="selectTotalCnt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+		SELECT COUNT(*)
+		FROM (
+			SELECT 
+				T1.RGSNO
+				,T1.TELNO
+			FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT}
+			AND T1.DT <= #{param.TO_DT}
+			]]>
+			GROUP BY T1.RGSNO, T1.TELNO
+		) A
+	</select>
+	<!-- <select id="selectTotalDlyLdinUserCnt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+		SELECT SUM(T1.USER_CNT) AS USER_CNT
+		FROM TBCA_DLY_LDIN_STAT T1
+		<![CDATA[
+		WHERE T1.DT >= #{param.FROM_DT}
+		AND T1.DT <= #{param.TO_DT}
+		]]>
+	</select> -->
+	<select id="selectListStdVal" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+		WITH USER_DLNGPTRN_STAT(RGSNO, TELNO, CALL_CNT, CNSLR_CONN_CNT, ERR_CNT, CALL_ERR_RT) AS (
+			SELECT 
+				T1.RGSNO
+				,T1.TELNO
+				,SUM(T1.CALL_CNT) AS CALL_CNT
+				,SUM(T1.CNSLR_CONN_CNT) AS CNSLR_CONN_CNT
+				,SUM(T1.ERR_CNT) AS ERR_CNT
+				,CAST(SUM(T1.ERR_CNT)/SUM(T1.CALL_CNT)*1000 AS UNSIGNED INT)/10 AS CALL_ERR_RT
+			FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT}
+			AND T1.DT <= #{param.TO_DT}
+			]]>
+			GROUP BY T1.RGSNO, T1.TELNO
+		)
+		SELECT 1 AS TYPE
+			,A.CALL_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_CNT) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 2 AS TYPE
+			,A.CALL_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_CNT DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 3 AS TYPE
+			,A.CNSLR_CONN_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CNSLR_CONN_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CNSLR_CONN_CNT) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 4 AS TYPE
+			,A.CNSLR_CONN_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.CNSLR_CONN_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CNSLR_CONN_CNT DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 5 AS TYPE
+			,A.ERR_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.ERR_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.ERR_CNT) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 6 AS TYPE
+			,A.ERR_CNT AS CNT
+		FROM (
+			SELECT 
+				ST1.ERR_CNT
+				,ROW_NUMBER() OVER(ORDER BY ST1.ERR_CNT DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 7 AS TYPE
+			,A.CALL_ERR_RT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_ERR_RT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_ERR_RT) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+		UNION ALL
+		SELECT 8 AS TYPE
+			,A.CALL_ERR_RT AS CNT
+		FROM (
+			SELECT 
+				ST1.CALL_ERR_RT
+				,ROW_NUMBER() OVER(ORDER BY ST1.CALL_ERR_RT DESC) AS NUM
+			FROM USER_DLNGPTRN_STAT ST1
+		) A
+		WHERE A.NUM = ${param.START}
+	</select>
+	
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.RGSNO)
+        FROM ( 
+			SELECT 
+				T1.RGSNO
+				,T1.TELNO
+				,MAX(T1.USER_SECD) AS USER_SECD
+				,SUM(T1.CALL_CNT) AS CALL_CNT
+				,SUM(T1.ERR_CNT) AS ERR_CNT
+				,SUM(T1.CNSLR_CONN_CNT) AS CNSLR_CONN_CNT
+				,CAST(SUM(T1.ERR_CNT)/SUM(T1.CALL_CNT)*1000 AS UNSIGNED INT)/10 AS CALL_ERR_RT
+			FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT}
+			AND T1.DT <= #{param.TO_DT}
+			]]>
+			GROUP BY T1.RGSNO, T1.TELNO
+		) T1	
+		WHERE 1 = 1
+		<if test="param.CALL_L != null and param.CALL_L != ''">
+			<![CDATA[
+			AND T1.CALL_CNT <= #{param.CALL_L}
+			]]>
+        </if>
+		<if test="param.CALL_M_F != null and param.CALL_M_T != ''">
+			<![CDATA[
+			AND T1.CALL_CNT >= #{param.CALL_M_F}
+			AND T1.CALL_CNT <= #{param.CALL_M_T}
+			]]>
+        </if>
+		<if test="param.CALL_U != null and param.CALL_U != ''">
+			<![CDATA[
+			AND T1.CALL_CNT >= #{param.CALL_U}
+			]]>
+        </if>
+        
+		<if test="param.CNSLR_CONN_L != null and param.CNSLR_CONN_L != ''">
+			<![CDATA[
+			AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_L}
+			]]>
+        </if>
+		<if test="param.CNSLR_CONN_M_F != null and param.CNSLR_CONN_M_T != ''">
+			<![CDATA[
+			AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_M_F}
+			AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_M_T}
+			]]>
+        </if>
+		<if test="param.CNSLR_CONN_U != null and param.CNSLR_CONN_U != ''">
+			<![CDATA[
+			AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_U}
+			]]>
+        </if>
+        
+		<if test="param.ERR_L != null and param.ERR_L != ''">
+			<![CDATA[
+			AND T1.ERR_CNT <= #{param.ERR_L}
+			]]>
+        </if>
+		<if test="param.ERR_M_F != null and param.ERR_M_T != ''">
+			<![CDATA[
+			AND T1.ERR_CNT >= #{param.ERR_M_F}
+			AND T1.ERR_CNT <= #{param.ERR_M_T}
+			]]>
+        </if>
+		<if test="param.ERR_U != null and param.ERR_U != ''">
+			<![CDATA[
+			AND T1.ERR_CNT >= #{param.ERR_U}
+			]]>
+        </if>
+        
+		<if test="param.CALL_ERR_L != null and param.CALL_ERR_L != ''">
+			<![CDATA[
+			AND T1.CALL_ERR_RT <= #{param.CALL_ERR_L}
+			]]>
+        </if>
+		<if test="param.CALL_ERR_M_F != null and param.CALL_ERR_M_T != ''">
+			<![CDATA[
+			AND T1.CALL_ERR_RT >= #{param.CALL_ERR_M_F}
+			AND T1.CALL_ERR_RT <= #{param.CALL_ERR_M_T}
+			]]>
+        </if>
+		<if test="param.CALL_ERR_U != null and param.CALL_ERR_U != ''">
+			<![CDATA[
+			AND T1.CALL_ERR_RT >= #{param.CALL_ERR_U}
+			]]>
+        </if>
+    </select>
+
+	<select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+		SELECT *
+		FROM ( 
+			SELECT 
+				T1.RGSNO
+				,T1.TELNO
+				,MAX(T1.USER_SECD) AS USER_SECD
+				,SUM(T1.CALL_CNT) AS CALL_CNT
+				,SUM(T1.ERR_CNT) AS ERR_CNT
+				,SUM(T1.CNSLR_CONN_CNT) AS CNSLR_CONN_CNT
+				,CAST(SUM(T1.ERR_CNT)/SUM(T1.CALL_CNT)*1000 AS UNSIGNED INT)/10 AS CALL_ERR_RT
+			FROM TBCA_DLY_USER_DLNGPTRN_STAT T1
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT}
+			AND T1.DT <= #{param.TO_DT}
+			]]>
+			GROUP BY T1.RGSNO, T1.TELNO
+		) T1	
+		WHERE 1 = 1
+		<if test="param.CALL_L != null and param.CALL_L != ''">
+			<![CDATA[
+			AND T1.CALL_CNT <= #{param.CALL_L}
+			]]>
+        </if>
+		<if test="param.CALL_M_F != null and param.CALL_M_T != ''">
+			<![CDATA[
+			AND T1.CALL_CNT >= #{param.CALL_M_F}
+			AND T1.CALL_CNT <= #{param.CALL_M_T}
+			]]>
+        </if>
+		<if test="param.CALL_U != null and param.CALL_U != ''">
+			<![CDATA[
+			AND T1.CALL_CNT >= #{param.CALL_U}
+			]]>
+        </if>
+        
+		<if test="param.CNSLR_CONN_L != null and param.CNSLR_CONN_L != ''">
+			<![CDATA[
+			AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_L}
+			]]>
+        </if>
+		<if test="param.CNSLR_CONN_M_F != null and param.CNSLR_CONN_M_T != ''">
+			<![CDATA[
+			AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_M_F}
+			AND T1.CNSLR_CONN_CNT <= #{param.CNSLR_CONN_M_T}
+			]]>
+        </if>
+		<if test="param.CNSLR_CONN_U != null and param.CNSLR_CONN_U != ''">
+			<![CDATA[
+			AND T1.CNSLR_CONN_CNT >= #{param.CNSLR_CONN_U}
+			]]>
+        </if>
+        
+		<if test="param.ERR_L != null and param.ERR_L != ''">
+			<![CDATA[
+			AND T1.ERR_CNT <= #{param.ERR_L}
+			]]>
+        </if>
+		<if test="param.ERR_M_F != null and param.ERR_M_T != ''">
+			<![CDATA[
+			AND T1.ERR_CNT >= #{param.ERR_M_F}
+			AND T1.ERR_CNT <= #{param.ERR_M_T}
+			]]>
+        </if>
+		<if test="param.ERR_U != null and param.ERR_U != ''">
+			<![CDATA[
+			AND T1.ERR_CNT >= #{param.ERR_U}
+			]]>
+        </if>
+        
+		<if test="param.CALL_ERR_L != null and param.CALL_ERR_L != ''">
+			<![CDATA[
+			AND T1.CALL_ERR_RT <= #{param.CALL_ERR_L}
+			]]>
+        </if>
+		<if test="param.CALL_ERR_M_F != null and param.CALL_ERR_M_T != ''">
+			<![CDATA[
+			AND T1.CALL_ERR_RT >= #{param.CALL_ERR_M_F}
+			AND T1.CALL_ERR_RT <= #{param.CALL_ERR_M_T}
+			]]>
+        </if>
+		<if test="param.CALL_ERR_U != null and param.CALL_ERR_U != ''">
+			<![CDATA[
+			AND T1.CALL_ERR_RT >= #{param.CALL_ERR_U}
+			]]>
+        </if>
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+</mapper>

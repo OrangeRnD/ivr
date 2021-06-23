@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.menu.dao.MenuDAO">
+    <!--<resultMap id="TBCA_MENU_resultMap" type="com.ibk.ivr.ca.system.menu.vo.MenuVO">
+        <result property="menuId" column="menuId"/>
+        <result property="menuNm" column="menuNm"/>
+        <result property="menuUrl" column="menuUrl"/>
+        <result property="delAltv" column="delAltv"/>
+        <result property="regrId" column="regrId"/>
+        <result property="regrNm" column="regrNm"/>
+        <result property="regnDt" column="regnDt"/>
+        <result property="lstUpdusrId" column="lstUpdusrId"/>
+        <result property="lstUpdtDt" column="lstUpdtDt"/>
+        <result property="chgCnt" column="chgCnt"/>
+    </resultMap>-->
+    <!--<resultMap id="TBCA_MENU_list_resultMap" type="com.ibk.ivr.ca.system.menu.vo.MenuVO">
+        <result property="menuId" column="MENU_ID"/>
+        <result property="menuNm" column="MENU_NM"/>
+        <result property="menuUrl" column="MENU_URL"/>
+        <result property="delAltv" column="DEL_ALTV"/>
+        <result property="regrId" column="REGR_ID"/>
+        <result property="regrNm" column="REGR_NM"/>
+        <result property="regnDt" column="REGN_DT"/>
+        <result property="lstUpdusrId" column="LST_UPDUSR_ID"/>
+        <result property="lstUpdtDt" column="LST_UPDT_DT"/>
+        <result property="chgCnt" column="CHG_CNT"/>
+    </resultMap>-->
+    <!--<insert id="insert" parameterType="com.ibk.ivr.ca.system.menu.vo.MenuVO" useGeneratedKeys="true" keyColumn="MENU_ID" keyProperty="menuId">-->
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.menu.vo.MenuVO">
+        INSERT INTO TBCA_MENU (
+            MENU_ID
+            ,MENU_NM
+            ,MENU_URL
+            ,DEL_ALTV
+            ,REGR_ID
+            ,REGN_DT
+            ,LST_UPDUSR_ID
+            ,LST_UPDT_DT
+            ,CHG_CNT
+        ) VALUES (
+            #{menuId}
+            ,#{menuNm}
+            ,#{menuUrl}
+            ,0
+            ,#{regrId}
+            ,#{regnDt}
+            ,#{lstUpdusrId}
+            ,#{lstUpdtDt}
+            ,0
+        )
+    </insert>
+    <update id="update" parameterType="com.ibk.ivr.ca.system.menu.vo.MenuVO">
+        UPDATE TBCA_MENU SET
+            MENU_NM = #{menuNm}
+            ,MENU_URL = #{menuUrl}
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CHG_CNT = #{chgCnt}
+        AND MENU_ID = #{menuId}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.menu.vo.MenuVO">
+        UPDATE TBCA_MENU SET
+            DEL_ALTV = 1
+            ,UPDUSR_ID = #{updusrId}
+            ,UPDT_DT = #{updtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CHG_CNT = #{chgCnt}
+        AND MENU_ID = #{menuId}
+    </update>
+    <select id="selectById" parameterType="int" resultType="com.ibk.ivr.ca.system.menu.vo.MenuVO">
+        SELECT
+               T1.MENU_ID AS menuId
+               ,T1.MENU_NM AS menuNm
+               ,T1.MENU_URL AS menuUrl
+               ,T1.REGR_ID AS regrId
+               ,(SELECT ST1.CUST_NM FROM CSCUSTM ST1 WHERE ST1.CUST_ID = T1.REGR_ID) AS regrNm
+               ,T1.REGN_DT AS regnDt
+               ,T1.LST_UPDUSR_ID AS lstUpdusrId
+               ,T1.LST_UPDT_DT AS lstUpdtDt
+               ,T1.CHG_CNT AS chgCnt
+        FROM TBCA_MENU T1
+        WHERE T1.MENU_ID = #{menuId}
+    </select>
+    <select id="select" parameterType="com.ibk.ivr.ca.system.menu.vo.MenuVO" resultType="com.ibk.ivr.ca.system.menu.vo.MenuVO">
+        SELECT
+               T1.MENU_ID AS menuId
+               ,T1.MENU_NM AS menuNm
+               ,T1.MENU_URL AS menuUrl
+               ,T1.REGR_ID AS regrId
+               ,(SELECT ST1.CUST_NM FROM CSCUSTM ST1 WHERE ST1.CUST_ID = T1.REGR_ID) AS regrNm
+               ,T1.REGN_DT AS regnDt
+               ,T1.LST_UPDUSR_ID AS lstUpdusrId
+               ,T1.LST_UPDT_DT AS lstUpdtDt
+               ,T1.CHG_CNT AS chgCnt
+        FROM TBCA_MENU T1
+        WHERE T1.MENU_ID = #{menuId}
+    </select>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.MENU_ID)
+        FROM TBCA_MENU T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.MENU_ID != null and param.MENU_ID != ''">
+            AND T1.MENU_ID = #{param.MENU_ID}
+        </if>
+        <if test="param.MENU_NM != null and param.MENU_NM != ''">
+            <bind name="pattern_MENU_NM" value="'%' + param.MENU_NM + '%'" />            
+            AND T1.MENU_NM LIKE #{pattern_MENU_NM} 
+        </if>
+        <if test="param.MENU_URL != null and param.MENU_URL != ''">
+            <bind name="pattern_MENU_URL" value="'%' + param.MENU_URL + '%'" />            
+            AND T1.MENU_URL LIKE #{pattern_MENU_URL} 
+        </if>
+        <if test="param.DEL_ALTV != null and param.DEL_ALTV != ''">
+            AND T1.DEL_ALTV = #{param.DEL_ALTV}
+        </if>
+        <if test="param.REGR_ID != null and param.REGR_ID != ''">
+            AND T1.REGR_ID = #{param.REGR_ID}
+        </if>
+        <if test="param.REGN_DT != null and param.REGN_DT != ''">
+            AND T1.REGN_DT = #{param.REGN_DT}
+        </if>
+        <if test="param.LST_UPDUSR_ID != null and param.LST_UPDUSR_ID != ''">
+            AND T1.LST_UPDUSR_ID = #{param.LST_UPDUSR_ID}
+        </if>
+        <if test="param.LST_UPDT_DT != null and param.LST_UPDT_DT != ''">
+            AND T1.LST_UPDT_DT = #{param.LST_UPDT_DT}
+        </if>
+        <if test="param.CHG_CNT != null and param.CHG_CNT != ''">
+            AND T1.CHG_CNT = #{param.CHG_CNT}
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.MENU_ID
+               ,T1.MENU_NM
+               ,T1.MENU_URL
+               ,T1.LST_UPDUSR_ID
+               ,T1.LST_UPDT_DT
+        FROM TBCA_MENU T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.MENU_ID != null and param.MENU_ID != ''">
+            AND T1.MENU_ID = #{param.MENU_ID}
+        </if>
+        <if test="param.MENU_NM != null and param.MENU_NM != ''">
+            <bind name="pattern_MENU_NM" value="'%' + param.MENU_NM + '%'" />            
+            AND T1.MENU_NM LIKE #{pattern_MENU_NM} 
+        </if>
+        <if test="param.MENU_URL != null and param.MENU_URL != ''">
+            <bind name="pattern_MENU_URL" value="'%' + param.MENU_URL + '%'" />            
+            AND T1.MENU_URL LIKE #{pattern_MENU_URL} 
+        </if>
+        <if test="param.DEL_ALTV != null and param.DEL_ALTV != ''">
+            AND T1.DEL_ALTV = #{param.DEL_ALTV}
+        </if>
+        <if test="param.REGR_ID != null and param.REGR_ID != ''">
+            AND T1.REGR_ID = #{param.REGR_ID}
+        </if>
+        <if test="param.REGN_DT != null and param.REGN_DT != ''">
+            AND T1.REGN_DT = #{param.REGN_DT}
+        </if>
+        <if test="param.LST_UPDUSR_ID != null and param.LST_UPDUSR_ID != ''">
+            AND T1.LST_UPDUSR_ID = #{param.LST_UPDUSR_ID}
+        </if>
+        <if test="param.LST_UPDT_DT != null and param.LST_UPDT_DT != ''">
+            AND T1.LST_UPDT_DT = #{param.LST_UPDT_DT}
+        </if>
+        <if test="param.CHG_CNT != null and param.CHG_CNT != ''">
+            AND T1.CHG_CNT = #{param.CHG_CNT}
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.MENU_ID DESC
+        </if>
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.MENU_ID
+               ,T1.MENU_NM
+               ,T1.MENU_URL
+               ,T1.LST_UPDUSR_ID
+               ,T1.LST_UPDT_DT
+        FROM TBCA_MENU T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.MENU_ID != null and param.MENU_ID != ''">
+            AND T1.MENU_ID = #{param.MENU_ID}
+        </if>
+        <if test="param.MENU_NM != null and param.MENU_NM != ''">
+            <bind name="pattern_MENU_NM" value="'%' + param.MENU_NM + '%'" />            
+            AND T1.MENU_NM LIKE #{pattern_MENU_NM} 
+        </if>
+        <if test="param.MENU_URL != null and param.MENU_URL != ''">
+            <bind name="pattern_MENU_URL" value="'%' + param.MENU_URL + '%'" />            
+            AND T1.MENU_URL LIKE #{pattern_MENU_URL} 
+        </if>
+        <if test="param.DEL_ALTV != null and param.DEL_ALTV != ''">
+            AND T1.DEL_ALTV = #{param.DEL_ALTV}
+        </if>
+        <if test="param.REGR_ID != null and param.REGR_ID != ''">
+            AND T1.REGR_ID = #{param.REGR_ID}
+        </if>
+        <if test="param.REGN_DT != null and param.REGN_DT != ''">
+            AND T1.REGN_DT = #{param.REGN_DT}
+        </if>
+        <if test="param.LST_UPDUSR_ID != null and param.LST_UPDUSR_ID != ''">
+            AND T1.LST_UPDUSR_ID = #{param.LST_UPDUSR_ID}
+        </if>
+        <if test="param.LST_UPDT_DT != null and param.LST_UPDT_DT != ''">
+            AND T1.LST_UPDT_DT = #{param.LST_UPDT_DT}
+        </if>
+        <if test="param.CHG_CNT != null and param.CHG_CNT != ''">
+            AND T1.CHG_CNT = #{param.CHG_CNT}
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.MENU_ID DESC
+        </if>
+    </select>
+</mapper>

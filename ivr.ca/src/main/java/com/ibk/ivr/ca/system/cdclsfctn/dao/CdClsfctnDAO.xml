@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.cdclsfctn.dao.CdClsfctnDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.cdclsfctn.vo.CdClsfctnVO">
+        INSERT INTO TBCA_CD_CLSFCTN (
+            CD_CLSFCTN
+            ,CD_CLSFCTN_NM
+            ,RM
+            ,DEL_ALTV
+            ,REGR_ID
+            ,REGN_DT
+            ,LST_UPDUSR_ID
+            ,LST_UPDT_DT
+            ,CHG_CNT
+        ) VALUES (
+            #{cdClsfctn}
+            ,#{cdClsfctnNm}
+            ,#{rm}
+            ,0
+            ,#{regrId}
+            ,#{regnDt}
+            ,#{regrId}
+            ,#{regnDt}
+            ,0
+        )
+    </insert>
+    <update id="update" parameterType="com.ibk.ivr.ca.system.cdclsfctn.vo.CdClsfctnVO">
+        UPDATE TBCA_CD_CLSFCTN SET
+            CD_CLSFCTN_NM = #{cdClsfctnNm}
+            ,RM = #{rm}
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CD_CLSFCTN = #{cdClsfctn}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.cdclsfctn.vo.CdClsfctnVO">
+        UPDATE TBCA_CD_CLSFCTN SET
+            DEL_ALTV = 1
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CD_CLSFCTN = #{cdClsfctn}
+    </update>
+    <select id="select" parameterType="string" resultType="com.ibk.ivr.ca.system.cdclsfctn.vo.CdClsfctnVO">
+        SELECT
+               T1.CD_CLSFCTN AS cdClsfctn
+               ,T1.CD_CLSFCTN_NM AS cdClsfctnNm
+               ,T1.RM AS rm
+               ,T1.REGR_ID AS regrId
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.REGR_ID) AS regrNm
+               ,T1.REGN_DT AS regnDt
+               ,T1.LST_UPDUSR_ID AS lstUpdusrId
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.LST_UPDUSR_ID) AS lstUpdusrNm
+               ,T1.LST_UPDT_DT AS lstUpdtDt
+               ,T1.CHG_CNT AS chgCnt
+        FROM TBCA_CD_CLSFCTN T1
+        WHERE T1.CD_CLSFCTN = #{cdClsfctn}
+    </select>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.CD_CLSFCTN)
+        FROM TBCA_CD_CLSFCTN T1
+        LEFT OUTER JOIN TBCA_CD T2
+        ON T2.DEL_ALTV = 0
+        AND T2.CD_CLSFCTN = T1.CD_CLSFCTN
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.CD_NM != null and param.CD_NM != ''">
+            <bind name="pattern_CD_NM" value="'%' + param.CD_NM + '%'" />            
+            AND T2.CD_NM LIKE #{pattern_CD_NM} 
+        </if>
+        <if test="param.CD != null and param.CD != ''">
+            AND T2.CD_NM = #{param.CD} 
+        </if>
+        <if test="param.CD_CLSFCTN != null and param.CD_CLSFCTN != ''">
+            <bind name="pattern_CD_CLSFCTN" value="'%' + param.CD_CLSFCTN + '%'" />            
+            AND T1.CD_CLSFCTN LIKE #{pattern_CD_CLSFCTN} 
+        </if>
+        <if test="param.CD_CLSFCTN_NM != null and param.CD_CLSFCTN_NM != ''">
+            <bind name="pattern_CD_CLSFCTN_NM" value="'%' + param.CD_CLSFCTN_NM + '%'" />            
+            AND T1.CD_CLSFCTN_NM LIKE #{pattern_CD_CLSFCTN_NM} 
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.CD_CLSFCTN
+               ,T1.CD_CLSFCTN_NM
+               ,T1.RM
+               
+               ,T2.CD_ID
+               ,T2.CD
+               ,T2.CD_NM
+               ,T2.SORT_ORDR
+               ,T2.RM
+               ,T2.USE_ALTV
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T2.LST_UPDUSR_ID) AS LST_UPDUSR_NM
+               ,T2.LST_UPDT_DT
+        FROM TBCA_CD_CLSFCTN T1
+        LEFT OUTER JOIN TBCA_CD T2
+        ON T2.DEL_ALTV = 0
+        AND T2.CD_CLSFCTN = T1.CD_CLSFCTN
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.CD_NM != null and param.CD_NM != ''">
+            <bind name="pattern_CD_NM" value="'%' + param.CD_NM + '%'" />            
+            AND T2.CD_NM LIKE #{pattern_CD_NM} 
+        </if>
+        <if test="param.CD != null and param.CD != ''">
+            AND T2.CD_NM = #{param.CD} 
+        </if>
+        <if test="param.CD_CLSFCTN != null and param.CD_CLSFCTN != ''">
+            <bind name="pattern_CD_CLSFCTN" value="'%' + param.CD_CLSFCTN + '%'" />            
+            AND T1.CD_CLSFCTN LIKE #{pattern_CD_CLSFCTN} 
+        </if>
+        <if test="param.CD_CLSFCTN_NM != null and param.CD_CLSFCTN_NM != ''">
+            <bind name="pattern_CD_CLSFCTN_NM" value="'%' + param.CD_CLSFCTN_NM + '%'" />            
+            AND T1.CD_CLSFCTN_NM LIKE #{pattern_CD_CLSFCTN_NM} 
+        </if>
+        ORDER BY T1.CD_CLSFCTN, T2.SORT_ORDR
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+</mapper>

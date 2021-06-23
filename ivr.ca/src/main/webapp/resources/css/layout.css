@@ -1,0 +1,62 @@
+html, body { height:100%; margin:0; padding:0; }
+body { width:100%; background:#3b4146 ; overflow-x: hidden;   }
+* {  margin: 0;  padding: 0;}
+#header { height: 60px;  width:100%;  min-width:1200px; background-color:#fff; border-bottom:1px solid #e2e2e2; }
+#header .logo { float:left; width:200px; height: 60px;background-color:#fff; border-bottom:1px solid #e2e2e2;   border-right:1px solid #e2e2e2; padding:15px 0 0 30px; }
+#header .logo:after{ content:"";display:block;clear:both;}
+#header .gnbTop { float:left;  height: 60px;  width: calc(100% - 240px);  
+-webkit-box-sizig: border-box; 
+-moz-box-sizing: border-box;
+box-sizing: border-box;  }
+
+#header .gnbTop .gnbLeft { float:left;  width:400px;}
+#header .gnbTop .gnbLeft a {float:left;  border-right:1px solid #e2e2e2; display:block; height:60px; width:60px;   }
+#header .gnbTop .gnbLeft a.btnMenu { background:url('../images/icon_menu.png') 19px 22px no-repeat; text-indent:-10000em; }
+
+#header .gnbTop .gnbLeft .location {float:left; font-family:dotum; font-size:12px; padding:24px 0 0 20px; color:#aaaaaa; }
+#header .gnbTop .gnbLeft .location span { background:url('../images/blt05.gif') left 1px top 1px no-repeat; padding-left:13px; margin-right:3px;   }
+#header .gnbTop .gnbLeft .location span:first-child {background:url('../images/icon_home.gif') left 0px top 1px no-repeat; }
+
+#header .gnbTop .gnbRight { float:right; width:240px;  font-size:12px;  text-align:right; margin-top:19px;  }
+#header .gnbTop .gnbRight span.name {font-size:13px; font-family:'korMed'; margin-right:2px;  }
+#header .gnbTop .gnbRight span.txt {color:#999; }
+#header .gnbTop .gnbRight  a {padding:7px 10px 6px; border-radius:3px; margin-left:5px;  font-family:dotum; font-size:11px; color:#9a9a9a; line-height:11px;  }
+#header .gnbTop .gnbRight  a.setting {border:1px solid #cacaca; }
+#header .gnbTop .gnbRight  a.logout {border:1px solid #cacaca; background-color:#f5f5f5}
+
+#TopNavi {  height: 40px;  background-color:#fff; border-bottom:1px solid #dfe4eb; padding-top:9px; padding-left:280px; white-space:nowrap;  width:100%; min-width:1100px; 
+-webkit-box-sizig: border-box; -moz-box-sizing: border-box;  box-sizing: border-box;}
+#TopNavi li { display:inline; font-size:13px; margin-right:15px; font-weight:800; line-height:14px; }
+#TopNavi li a { color:#333; padding-right:17px;  display:inline-block; }
+
+
+#mainNav { float: left;  width: 200px;  min-height:200px; }
+
+#mainNav .lnbmenu {float:left;  width:100%; margin-bottom:10px; }
+#mainNav .lnbmenu li { float:left; }
+
+.sidebar-menu {list-style: none;margin: 0;padding: 0;background-color: #222d32; }
+.sidebar-menu > li {position: relative;margin: 0;padding: 0; float:left; width:100%;  font-family: 'korBold'; font-size:14px;  }
+.sidebar-menu > li > a {padding: 20px 5px 20px 15px;display: block; color: #929fab; border-bottom:1px solid #292d31; background:url('../images/arrow_down.png') no-repeat right 13px top 27px; }
+
+.sidebar-menu > li:hover > a, .sidebar-menu > li.active > a {color: #fff; background:#303338 url('../images/arrow_up.png') no-repeat right 13px top 27px; border-bottom:1px solid #303338;}
+.sidebar-menu > li > .treeview-menu {margin: 0 1px;background: #303338; }
+.sidebar-menu > li .label, .sidebar-menu > li .badge {margin-top: 3px;margin-right: 5px; }
+.sidebar-menu li.active > .treeview-menu {display: block;  }
+.sidebar-menu a {color: #b8c7ce; text-decoration: none; }
+
+.sidebar-menu .treeview-menu {display: none;list-style: none;padding: 0;margin: 0; }
+.sidebar-menu .treeview-menu .treeview-menu {padding-left: 20px; }
+.sidebar-menu .treeview-menu > li {margin: 0;  float:left; width:100%; font-family: 'korBold'; font-size:12px;  }
+.sidebar-menu .treeview-menu > li > a { padding:8px 0 8px 25px;display: block; color: #929fab; background:#303338 url('../images/blt04.gif') no-repeat left 15px top 18px; }
+.sidebar-menu .treeview-menu > li:last-child > a {padding-bottom:20px; }
+.sidebar-menu .treeview-menu > li.active > a, .sidebar-menu .treeview-menu > li > a:hover {color: #dee4ea; }
+
+
+.btnGuide {float:left; text-align:center;  width:100%; padding:10px;  }
+.btnGuide a {color:#92a4b8; font-family: 'korMed'; font-size:13px;  width:100%; background-color:#444b51; display:block; padding:12px 0 30px;  border:1px solid #292d31; border-radius:2px; background:#444b51 url('../images/icon_download.gif') no-repeat center  bottom 15px;}
+.btnGuide a:hover {background-color:#4b535a; color:#fff; }
+
+.viewDisc {float:left; padding:12px; font-family:dotum;  color:#899098; line-height:16px;  }
+.viewDisc .discTit {font-size:12px; font-weight:bold; margin-bottom:5px;   }
+.viewDisc .discTxt {font-size:11px; }

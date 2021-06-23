@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.ldin.callanalysis.dao.LdinCallAnalysisDAO">
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+			B.CD AS INPTH_SECD
+			,B.CD_NM AS INPTH_SECD_NM
+			,SUM(CASE WHEN A.TYPE = 1 THEN A.AVG_CNT ELSE 0 END) AS AVG_CNT1
+			,SUM(CASE WHEN A.TYPE = 1 THEN A.TOT_CNT ELSE 0 END) AS TOT_CNT1
+			,SUM(CASE WHEN A.TYPE = 1 THEN A.MAX_CNT ELSE 0 END) AS MAX_CNT1
+			,MAX(CASE WHEN A.TYPE = 1 THEN A.MAX_DT ELSE '' END) AS MAX_DT1
+			,SUM(CASE WHEN A.TYPE = 2 THEN A.AVG_CNT ELSE 0 END) AS AVG_CNT2
+			,SUM(CASE WHEN A.TYPE = 2 THEN A.TOT_CNT ELSE 0 END) AS TOT_CNT2
+			,SUM(CASE WHEN A.TYPE = 2 THEN A.MAX_CNT ELSE 0 END) AS MAX_CNT2
+			,MAX(CASE WHEN A.TYPE = 2 THEN A.MAX_DT ELSE '' END) AS MAX_DT2
+		FROM TBCA_CD B
+		LEFT OUTER JOIN (
+			SELECT *
+			FROM (	
+				SELECT 
+					1 AS TYPE
+					,A.INPTH_SECD
+					,AVG(A.CALL_CNT) AS AVG_CNT
+					,SUM(A.CALL_CNT) AS TOT_CNT
+					,MAX(A.CALL_CNT) AS MAX_CNT
+					,MAX(CASE WHEN A.NUM = 1 THEN A.DT ELSE '' END) AS MAX_DT
+				FROM (
+					SELECT 
+						T1.DT
+						,T1.INPTH_SECD
+						,T1.CALL_CNT
+						,ROW_NUMBER() OVER(PARTITION BY T1.INPTH_SECD ORDER BY T1.CALL_CNT DESC) AS NUM
+					<choose>
+			    		<when test="param.CURRENT_DATE1 != null">
+							FROM (
+								SELECT
+									A.DT
+									,A.INPTH_SECD
+									,A.CALL_CNT
+								FROM TBCA_DLY_INPTH_LDIN_STAT A
+								<![CDATA[
+								WHERE A.DT >= #{param.FROM_DT1}
+								AND A.DT <= #{param.TO_DT1}
+								]]>
+								AND A.DT != #{param.CURRENT_DATE1}
+								UNION ALL
+								SELECT *
+								FROM (
+									SELECT 
+										   A.DT
+										   ,A.INPTH_SECD
+									       ,SUM(A.CALL_CNT) AS CALL_CNT
+									FROM TBCA_MLY_INPTH_LDIN_STAT A
+									WHERE A.DT = #{param.CURRENT_DATE1}
+									GROUP BY A.DT, A.INPTH_SECD
+								) A
+							) T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT		
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+			    		</when>
+			    		<otherwise>
+							FROM TBCA_DLY_INPTH_LDIN_STAT T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT		
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							<![CDATA[
+							WHERE T1.DT >= #{param.FROM_DT1}
+							AND T1.DT <= #{param.TO_DT1}
+							]]>
+			    		</otherwise>
+			    	</choose>
+				) A
+				GROUP BY A.INPTH_SECD
+			) A
+			UNION ALL
+			SELECT *
+			FROM (	
+				SELECT 
+					2 AS TYPE
+					,A.INPTH_SECD
+					,AVG(A.CALL_CNT) AS AVG_CNT
+					,SUM(A.CALL_CNT) AS TOT_CNT
+					,MAX(A.CALL_CNT) AS MAX_CNT
+					,MAX(CASE WHEN A.NUM = 1 THEN A.DT ELSE '' END) AS MAX_DT
+				FROM (
+					SELECT 
+						T1.DT
+						,T1.INPTH_SECD
+						,T1.CALL_CNT
+						,ROW_NUMBER() OVER(PARTITION BY T1.INPTH_SECD ORDER BY T1.CALL_CNT DESC) AS NUM
+					<choose>
+			    		<when test="param.CURRENT_DATE2 != null">
+							FROM (
+								SELECT
+									A.DT
+									,A.INPTH_SECD
+									,A.CALL_CNT
+								FROM TBCA_DLY_INPTH_LDIN_STAT A
+								<![CDATA[
+								WHERE A.DT >= #{param.FROM_DT2}
+								AND A.DT <= #{param.TO_DT2}
+								]]>
+								AND A.DT != #{param.CURRENT_DATE2}
+								UNION ALL
+								SELECT *
+								FROM (
+									SELECT 
+										   A.DT
+										   ,A.INPTH_SECD
+									       ,SUM(A.CALL_CNT) AS CALL_CNT
+									FROM TBCA_MLY_INPTH_LDIN_STAT A
+									WHERE A.DT = #{param.CURRENT_DATE2}
+									GROUP BY A.DT, A.INPTH_SECD
+								) A
+							) T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT		
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+			    		</when>
+			    		<otherwise>
+							FROM TBCA_DLY_INPTH_LDIN_STAT T1
+							INNER JOIN TBCA_CLDR T0
+							ON T0.DT = T1.DT		
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+					            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+					        </if>
+					        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+					            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+					        </if>
+							<![CDATA[
+							WHERE T1.DT >= #{param.FROM_DT2}
+							AND T1.DT <= #{param.TO_DT2}
+						    ]]>	
+			    		</otherwise>
+			    	</choose>
+				) A
+				GROUP BY A.INPTH_SECD
+			) A
+		) A
+		ON A.INPTH_SECD = B.CD
+		WHERE B.DEL_ALTV = 0
+		AND B.USE_ALTV = 1
+		AND B.CD_CLSFCTN = 'INPTH_SECD'
+		GROUP BY B.CD, B.CD_NM
+		ORDER BY B.SORT_ORDR
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	SELECT *
+    	FROM (
+	    	SELECT *
+	    	FROM (
+		    	SELECT
+					T1.DT
+					,SUM(CASE WHEN T1.INPTH_SECD = '1' THEN T1.CALL_CNT ELSE 0 END) AS CNT1
+					,SUM(CASE WHEN T1.INPTH_SECD = '2' THEN T1.CALL_CNT ELSE 0 END) AS CNT2
+					,SUM(CASE WHEN T1.INPTH_SECD = '3' THEN T1.CALL_CNT ELSE 0 END) AS CNT3
+					,SUM(CASE WHEN T1.INPTH_SECD = '4' THEN T1.CALL_CNT ELSE 0 END) AS CNT4
+					,SUM(CASE WHEN T1.INPTH_SECD = '5' THEN T1.CALL_CNT ELSE 0 END) AS CNT5
+					,SUM(CASE WHEN T1.INPTH_SECD = '6' THEN T1.CALL_CNT ELSE 0 END) AS CNT6
+					,SUM(CASE WHEN T1.INPTH_SECD = '7' THEN T1.CALL_CNT ELSE 0 END) AS CNT7
+					,SUM(CASE WHEN T1.INPTH_SECD = '8' THEN T1.CALL_CNT ELSE 0 END) AS CNT8
+					,SUM(CASE WHEN T1.INPTH_SECD = '9' THEN T1.CALL_CNT ELSE 0 END) AS CNT9
+					,SUM(CASE WHEN T1.INPTH_SECD = '10' THEN T1.CALL_CNT ELSE 0 END) AS CNT10
+					,SUM(CASE WHEN T1.INPTH_SECD = '11' THEN T1.CALL_CNT ELSE 0 END) AS CNT11
+					,SUM(CASE WHEN T1.INPTH_SECD = '12' THEN T1.CALL_CNT ELSE 0 END) AS CNT12
+				<choose>
+		    		<when test="param.CURRENT_DATE1 != null">
+						FROM (
+							SELECT
+								A.DT
+								,A.INPTH_SECD
+								,A.CALL_CNT
+							FROM TBCA_DLY_INPTH_LDIN_STAT A
+							<![CDATA[
+							WHERE A.DT >= #{param.FROM_DT1}
+							AND A.DT <= #{param.TO_DT1}
+							]]>
+							AND A.DT != #{param.CURRENT_DATE1}
+							UNION ALL
+							SELECT *
+							FROM (
+								SELECT 
+									   A.DT
+									   ,A.INPTH_SECD
+								       ,SUM(A.CALL_CNT) AS CALL_CNT
+								FROM TBCA_MLY_INPTH_LDIN_STAT A
+								WHERE A.DT = #{param.CURRENT_DATE1}
+								GROUP BY A.DT, A.INPTH_SECD
+							) A
+						) T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT		
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+		    		</when>
+		    		<otherwise>
+						FROM TBCA_DLY_INPTH_LDIN_STAT T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT		
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+						<![CDATA[
+						WHERE T1.DT >= #{param.FROM_DT1}
+						AND T1.DT <= #{param.TO_DT1}
+						]]>
+		    		</otherwise>
+		    	</choose>
+		    	GROUP BY T1.DT
+		    ) A	
+			UNION ALL
+	    	SELECT *
+	    	FROM (
+		    	SELECT
+					T1.DT
+					,SUM(CASE WHEN T1.INPTH_SECD = '1' THEN T1.CALL_CNT ELSE 0 END) AS CNT1
+					,SUM(CASE WHEN T1.INPTH_SECD = '2' THEN T1.CALL_CNT ELSE 0 END) AS CNT2
+					,SUM(CASE WHEN T1.INPTH_SECD = '3' THEN T1.CALL_CNT ELSE 0 END) AS CNT3
+					,SUM(CASE WHEN T1.INPTH_SECD = '4' THEN T1.CALL_CNT ELSE 0 END) AS CNT4
+					,SUM(CASE WHEN T1.INPTH_SECD = '5' THEN T1.CALL_CNT ELSE 0 END) AS CNT5
+					,SUM(CASE WHEN T1.INPTH_SECD = '6' THEN T1.CALL_CNT ELSE 0 END) AS CNT6
+					,SUM(CASE WHEN T1.INPTH_SECD = '7' THEN T1.CALL_CNT ELSE 0 END) AS CNT7
+					,SUM(CASE WHEN T1.INPTH_SECD = '8' THEN T1.CALL_CNT ELSE 0 END) AS CNT8
+					,SUM(CASE WHEN T1.INPTH_SECD = '9' THEN T1.CALL_CNT ELSE 0 END) AS CNT9
+					,SUM(CASE WHEN T1.INPTH_SECD = '10' THEN T1.CALL_CNT ELSE 0 END) AS CNT10
+					,SUM(CASE WHEN T1.INPTH_SECD = '11' THEN T1.CALL_CNT ELSE 0 END) AS CNT11
+					,SUM(CASE WHEN T1.INPTH_SECD = '12' THEN T1.CALL_CNT ELSE 0 END) AS CNT12
+				<choose>
+		    		<when test="param.CURRENT_DATE2= null">
+						FROM (
+							SELECT
+								A.DT
+								,A.INPTH_SECD
+								,A.CALL_CNT
+							FROM TBCA_DLY_INPTH_LDIN_STAT A
+							<![CDATA[
+							WHERE A.DT >= #{param.FROM_DT2}
+							AND A.DT <= #{param.TO_DT2}
+							]]>
+							AND A.DT != #{param.CURRENT_DATE2}
+							UNION ALL
+							SELECT *
+							FROM (
+								SELECT 
+									   A.DT
+									   ,A.INPTH_SECD
+								       ,SUM(A.CALL_CNT) AS CALL_CNT
+								FROM TBCA_MLY_INPTH_LDIN_STAT A
+								WHERE A.DT = #{param.CURRENT_DATE2}
+								GROUP BY A.DT, A.INPTH_SECD
+							) A
+						) T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT		
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+		    		</when>
+		    		<otherwise>
+						FROM TBCA_DLY_INPTH_LDIN_STAT T1
+						INNER JOIN TBCA_CLDR T0
+						ON T0.DT = T1.DT		
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+				            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+				        </if>
+				        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+				            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+				        </if>
+						<![CDATA[
+						WHERE T1.DT >= #{param.FROM_DT2}
+						AND T1.DT <= #{param.TO_DT2}
+						]]>
+		    		</otherwise>
+		    	</choose>
+		    	GROUP BY T1.DT
+		    ) A
+	    ) A
+	    ORDER BY A.DT	
+    </select>
+    
+    <!-- <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+	    SELECT
+			B.CD AS INPTH_SECD
+			,B.CD_NM AS INPTH_SECD_NM
+			,SUM(CASE WHEN TYPE = 1 THEN CALL_CNT ELSE 0 END) AS CALL_CNT1
+			,SUM(CASE WHEN TYPE = 2 THEN CALL_CNT ELSE 0 END) AS CALL_CNT2
+			,SUM(CASE WHEN TYPE = 3 THEN CALL_CNT ELSE 0 END) AS CALL_CNT3
+			,SUM(CASE WHEN TYPE = 4 THEN CALL_CNT ELSE 0 END) AS CALL_CNT4
+			,SUM(CASE WHEN TYPE = 1 THEN DT_CNT ELSE 0 END) AS DT_CNT1
+			,SUM(CASE WHEN TYPE = 2 THEN DT_CNT ELSE 0 END) AS DT_CNT2
+			,SUM(CASE WHEN TYPE = 3 THEN DT_CNT ELSE 0 END) AS DT_CNT3
+			,SUM(CASE WHEN TYPE = 4 THEN DT_CNT ELSE 0 END) AS DT_CNT4
+		FROM (
+	        SELECT
+	        	   1 AS TYPE
+			       ,T1.INPTH_SECD
+			       ,SUM(T1.CALL_CNT) AS CALL_CNT
+			       ,COUNT(T0.DT) AS DT_CNT
+			FROM TBCA_DLY_INPTH_LDIN_STAT T1
+			INNER JOIN TBCA_CLDR T0
+			ON T0.DT = T1.DT
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+	            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV != #{param.RESTDE_ALTV})
+	        </if>
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+	            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV = #{param.RESTDE_ALTV}
+	        </if>
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT1}
+			AND T1.DT <= #{param.TO_DT1}
+			]]>
+			GROUP BY T1.INPTH_SECD
+			UNION ALL
+			SELECT
+	        	   2 AS TYPE
+			       ,T1.INPTH_SECD
+			       ,SUM(T1.CALL_CNT) AS CALL_CNT
+			       ,COUNT(T0.DT) AS DT_CNT
+			FROM TBCA_DLY_INPTH_LDIN_STAT T1
+			INNER JOIN TBCA_CLDR T0
+			ON T0.DT = T1.DT
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+	            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV != #{param.RESTDE_ALTV})
+	        </if>
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+	            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV = #{param.RESTDE_ALTV}
+	        </if>
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT2}
+			AND T1.DT <= #{param.TO_DT2}
+			]]>
+			GROUP BY T1.INPTH_SECD
+			UNION ALL
+			SELECT
+	        	   3 AS TYPE
+			       ,T1.INPTH_SECD
+			       ,SUM(T1.CALL_CNT) AS CALL_CNT
+			       ,COUNT(T0.DT) AS DT_CNT
+			FROM TBCA_DLY_INPTH_LDIN_STAT T1
+			INNER JOIN TBCA_CLDR T0
+			ON T0.DT = T1.DT
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+	            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV != #{param.RESTDE_ALTV})
+	        </if>
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+	            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV = #{param.RESTDE_ALTV}
+	        </if>
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT3}
+			AND T1.DT <= #{param.TO_DT3}
+			]]>
+			GROUP BY T1.INPTH_SECD
+			UNION ALL
+			SELECT
+	        	   4 AS TYPE
+			       ,T1.INPTH_SECD
+			       ,SUM(T1.CALL_CNT) AS CALL_CNT
+			       ,COUNT(T0.DT) AS DT_CNT
+			FROM TBCA_DLY_INPTH_LDIN_STAT T1
+			INNER JOIN TBCA_CLDR T0
+			ON T0.DT = T1.DT
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+	            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV != #{param.RESTDE_ALTV})
+	        </if>
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+	            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND RESTDE_ALTV = #{param.RESTDE_ALTV}
+	        </if>
+			<![CDATA[
+			WHERE T1.DT >= #{param.FROM_DT4}
+			AND T1.DT <= #{param.TO_DT4}
+			]]>
+			GROUP BY T1.INPTH_SECD
+		) A
+		INNER JOIN TBCA_CD B
+		ON B.DEL_ALTV = 0
+		AND B.USE_ALTV = 1
+		AND B.CD_CLSFCTN = 'INPTH_SECD'
+		AND B.CD = A.INPTH_SECD
+		GROUP BY B.CD, B.CD_NM
+		ORDER BY B.SORT_ORDR
+    </select> -->
+</mapper>

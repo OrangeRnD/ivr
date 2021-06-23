@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.cd.dao.CdDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.cd.vo.CdVO" useGeneratedKeys="true" keyColumn="CD_ID" keyProperty="cdId">
+        INSERT INTO TBCA_CD (
+            CD_ID
+            ,CD_CLSFCTN
+            ,CD
+            ,CD_NM
+            ,SORT_ORDR
+            ,RM
+            ,USE_ALTV
+            ,DEL_ALTV
+            ,REGR_ID
+            ,REGN_DT
+            ,LST_UPDUSR_ID
+            ,LST_UPDT_DT
+            ,CHG_CNT
+        ) VALUES (
+            #{cdId}
+            ,#{cdClsfctn}
+            ,#{cd}
+            ,#{cdNm}
+            ,#{sortOrdr}
+            ,#{rm}
+            ,#{useAltv}
+            ,0
+            ,#{regrId}
+            ,#{regnDt}
+            ,#{regrId}
+            ,#{regnDt}
+            ,0
+        )
+    </insert>
+    <update id="update" parameterType="com.ibk.ivr.ca.system.cd.vo.CdVO">
+        UPDATE TBCA_CD SET
+            CD = #{cd}
+            ,CD_NM = #{cdNm}
+            ,SORT_ORDR = #{sortOrdr}
+            ,RM = #{rm}
+            ,USE_ALTV = #{useAltv}
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CD_ID = #{cdId}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.cd.vo.CdVO">
+        UPDATE TBCA_CD SET
+            DEL_ALTV = 1
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE CD_ID = #{cdId}
+    </update>
+    <select id="select" parameterType="int" resultType="com.ibk.ivr.ca.system.cd.vo.CdVO">
+        SELECT
+               T1.CD_ID AS cdId
+               ,T1.CD_CLSFCTN AS cdClsfctn
+               ,T1.CD AS cd
+               ,T1.CD_NM AS cdNm
+               ,T1.SORT_ORDR AS sortOrdr
+               ,T1.RM AS rm
+               ,T1.USE_ALTV AS useAltv
+               ,T1.REGR_ID AS regrId
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.REGR_ID) AS regrNm
+               ,T1.REGN_DT AS regnDt
+               ,T1.LST_UPDUSR_ID AS lstUpdusrId
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.LST_UPDUSR_ID) AS lstUpdusrNm
+               ,T1.LST_UPDT_DT AS lstUpdtDt
+               ,T1.CHG_CNT AS chgCnt
+        FROM TBCA_CD T1
+        WHERE T1.CD_ID = #{cdId}
+    </select>
+    <select id="selectListAll" parameterType="string" resultType="com.ibk.ivr.ca.system.cd.vo.CdVO">
+        SELECT
+               T1.CD AS cd
+               ,T1.CD_NM AS cdNm
+        FROM TBCA_CD T1
+        WHERE T1.DEL_ALTV = 0
+        AND T1.USE_ALTV = 1
+        AND T1.CD_CLSFCTN = #{cdClsfctn} 
+        ORDER BY T1.SORT_ORDR
+    </select>
+</mapper>

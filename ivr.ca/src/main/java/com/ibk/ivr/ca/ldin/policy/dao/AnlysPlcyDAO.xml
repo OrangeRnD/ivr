@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.ldin.policy.dao.AnlysPlcyDAO">
+    <resultMap id="TBCA_ANLYS_PLCY_resultMap" type="com.ibk.ivr.ca.ldin.policy.vo.AnlysPlcyVO">
+        <result property="anlysPlcyId" column="ANLYS_PLCY_ID"/>
+        <result property="anlysPlcySecd" column="ANLYS_PLCY_SECD"/>
+        <result property="anlysPlcySecdNm" column="ANLYS_PLCY_SECD_NM"/>
+        <result property="anlysPlcyNm" column="ANLYS_PLCY_NM"/>
+        <result property="prdSecd" column="PRD_SECD"/>
+        <result property="prdSecdNm" column="PRD_SECD_NM"/>
+        <result property="bizdtSecd" column="BIZDT_SECD"/>
+        <result property="bizdtSecdNm" column="BIZDT_SECD_NM"/>
+        <result property="exclsnStdval" column="EXCLSN_STDVAL"/>
+        <result property="notiftnStdval" column="NOTIFTN_STDVAL"/>
+        <result property="smsXmsnAltv" column="SMS_XMSN_ALTV"/>
+        <result property="emailXmsnAltv" column="EMAIL_XMSN_ALTV"/>
+        <result property="smsXmsnCn" column="SMS_XMSN_CN"/>
+        <result property="delAltv" column="DEL_ALTV"/>
+        <result property="regrId" column="REGR_ID"/>
+        <result property="regrNm" column="REGR_NM"/>
+        <result property="regnDt" column="REGN_DT"/>
+        <result property="lstUpdusrId" column="LST_UPDUSR_ID"/>
+        <result property="lstUpdusrNm" column="LST_UPDUSR_NM"/>
+        <result property="lstUpdtDt" column="LST_UPDT_DT"/>
+        <result property="chgCnt" column="CHG_CNT"/>
+    </resultMap>
+    <insert id="insert" parameterType="com.ibk.ivr.ca.ldin.policy.vo.AnlysPlcyVO" useGeneratedKeys="true" keyColumn="ANLYS_PLCY_ID" keyProperty="anlysPlcyId">
+        INSERT INTO TBCA_ANLYS_PLCY (
+            ANLYS_PLCY_ID
+            ,ANLYS_PLCY_SECD
+            ,ANLYS_PLCY_NM
+            ,PRD_SECD
+            ,BIZDT_SECD
+            ,EXCLSN_STDVAL
+            ,NOTIFTN_STDVAL
+            ,SMS_XMSN_ALTV
+            ,EMAIL_XMSN_ALTV
+            ,SMS_XMSN_CN
+            ,DEL_ALTV
+            ,REGR_ID
+            ,REGN_DT
+            ,LST_UPDUSR_ID
+            ,LST_UPDT_DT
+            ,CHG_CNT
+        ) VALUES (
+            #{anlysPlcyId}
+            ,#{anlysPlcySecd}
+            ,#{anlysPlcyNm}
+            ,#{prdSecd}
+            ,#{bizdtSecd}
+            ,#{exclsnStdval}
+            ,#{notiftnStdval}
+            ,#{smsXmsnAltv}
+            ,#{emailXmsnAltv}
+            ,#{smsXmsnCn}
+            ,0
+            ,#{regrId}
+            ,#{regnDt}
+            ,#{regrId}
+            ,#{regnDt}
+            ,0
+        )
+    </insert>
+    <update id="update" parameterType="com.ibk.ivr.ca.ldin.policy.vo.AnlysPlcyVO">
+        UPDATE TBCA_ANLYS_PLCY SET
+            ANLYS_PLCY_NM = #{anlysPlcyNm}
+            ,PRD_SECD = #{prdSecd}
+            ,BIZDT_SECD = #{bizdtSecd}
+            ,EXCLSN_STDVAL = #{exclsnStdval}
+            ,NOTIFTN_STDVAL = #{notiftnStdval}
+            ,SMS_XMSN_ALTV = #{smsXmsnAltv}
+            ,EMAIL_XMSN_ALTV = #{emailXmsnAltv}
+            ,SMS_XMSN_CN = #{smsXmsnCn}
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE ANLYS_PLCY_ID = #{anlysPlcyId}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.ldin.policy.vo.AnlysPlcyVO">
+        UPDATE TBCA_ANLYS_PLCY SET
+            DEL_ALTV = 1
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE ANLYS_PLCY_ID = #{anlysPlcyId}
+    </update>
+    <select id="selectExists" parameterType="com.ibk.ivr.ca.ldin.policy.vo.AnlysPlcyVO" resultType="int">
+        SELECT 1
+        FROM TBCA_ANLYS_PLCY T1
+        WHERE T1.DEL_ALTV = 0 
+        AND T1.PRD_SECD = #{prdSecd}
+        AND T1.BIZDT_SECD = #{bizdtSecd}
+        AND EXCLSN_STDVAL = #{exclsnStdval}
+        AND NOTIFTN_STDVAL = #{notiftnStdval}
+        AND T1.ANLYS_PLCY_ID != #{anlysPlcyId}
+        LIMIT 0, 1
+    </select>
+    <select id="select" parameterType="int" resultMap="TBCA_ANLYS_PLCY_resultMap">
+        SELECT
+               T1.ANLYS_PLCY_ID
+               ,T1.ANLYS_PLCY_NM
+               ,T1.PRD_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'PRD_SECD' AND ST1.CD = T1.PRD_SECD) AS PRD_SECD_NM
+               ,T1.BIZDT_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'BIZDT_SECD' AND ST1.CD = T1.BIZDT_SECD) AS BIZDT_SECD_NM
+               ,T1.EXCLSN_STDVAL
+               ,T1.NOTIFTN_STDVAL
+               ,T1.SMS_XMSN_ALTV
+               ,T1.EMAIL_XMSN_ALTV
+               ,T1.SMS_XMSN_CN
+               ,T1.REGR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.REGR_ID) AS REGR_NM
+               ,T1.REGN_DT
+               ,T1.LST_UPDUSR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.LST_UPDUSR_ID) AS LST_UPDUSR_NM
+               ,T1.LST_UPDT_DT
+               ,T1.CHG_CNT
+        FROM TBCA_ANLYS_PLCY T1
+        WHERE T1.ANLYS_PLCY_ID = #{anlysPlcyId}
+    </select>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.ANLYS_PLCY_ID)
+        FROM TBCA_ANLYS_PLCY T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.PRD_SECD != null and param.PRD_SECD != ''">
+            AND T1.PRD_SECD = #{param.PRD_SECD} 
+        </if>
+        <if test="param.NOTIFTN_SECT_CD != null and param.NOTIFTN_SECT_CD != ''">
+            AND T1.NOTIFTN_SECT_CD = #{param.NOTIFTN_SECT_CD} 
+        </if>
+        <if test="param.BIZDT_SECD != null and param.BIZDT_SECD != ''">
+            AND T1.BIZDT_SECD = #{param.BIZDT_SECD} 
+        </if>
+        <if test="param.ANLYS_PLCY_NM != null and param.ANLYS_PLCY_NM != ''">
+            <bind name="pattern_ANLYS_PLCY_NM" value="'%' + param.ANLYS_PLCY_NM + '%'" />            
+            AND T1.ANLYS_PLCY_NM LIKE #{pattern_ANLYS_PLCY_NM} 
+        </if>
+        <if test="param.REGN_DT_F != null and param.REGN_DT_F != ''">
+			<![CDATA[
+            AND T1.REGN_DT >= #{param.REGN_DT_F}
+			]]>
+        </if>
+        <if test="param.REGN_DT_T != null and param.REGN_DT_T != ''">
+			<![CDATA[
+            AND T1.REGN_DT <= #{param.REGN_DT_T}
+			]]>
+        </if>
+        <if test="param.ANLYS_PLCY_SECD != null and param.ANLYS_PLCY_SECD != ''">
+            AND T1.ANLYS_PLCY_SECD = #{param.ANLYS_PLCY_SECD} 
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultMap="TBCA_ANLYS_PLCY_resultMap">
+        SELECT
+               T1.ANLYS_PLCY_ID
+               ,T1.ANLYS_PLCY_NM
+               ,T1.PRD_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'PRD_SECD' AND ST1.CD = T1.PRD_SECD) AS PRD_SECD_NM
+               ,T1.BIZDT_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'BIZDT_SECD' AND ST1.CD = T1.BIZDT_SECD) AS BIZDT_SECD_NM
+               ,T1.EXCLSN_STDVAL
+               ,T1.NOTIFTN_STDVAL
+               ,T1.SMS_XMSN_ALTV
+               ,T1.EMAIL_XMSN_ALTV
+               ,T1.REGR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.REGR_ID) AS REGR_NM
+               ,T1.REGN_DT
+               ,T1.LST_UPDUSR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.USR_ID = T1.LST_UPDUSR_ID) AS LST_UPDUSR_NM
+               ,T1.LST_UPDT_DT
+               ,T1.CHG_CNT
+        FROM TBCA_ANLYS_PLCY T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.PRD_SECD != null and param.PRD_SECD != ''">
+            AND T1.PRD_SECD = #{param.PRD_SECD} 
+        </if>
+        <if test="param.NOTIFTN_SECT_CD != null and param.NOTIFTN_SECT_CD != ''">
+            AND T1.NOTIFTN_SECT_CD = #{param.NOTIFTN_SECT_CD} 
+        </if>
+        <if test="param.BIZDT_SECD != null and param.BIZDT_SECD != ''">
+            AND T1.BIZDT_SECD = #{param.BIZDT_SECD} 
+        </if>
+        <if test="param.ANLYS_PLCY_NM != null and param.ANLYS_PLCY_NM != ''">
+            <bind name="pattern_ANLYS_PLCY_NM" value="'%' + param.ANLYS_PLCY_NM + '%'" />            
+            AND T1.ANLYS_PLCY_NM LIKE #{pattern_ANLYS_PLCY_NM} 
+        </if>
+        <if test="param.REGN_DT_F != null and param.REGN_DT_F != ''">
+			<![CDATA[
+            AND T1.REGN_DT >= #{param.REGN_DT_F}
+			]]>
+        </if>
+        <if test="param.REGN_DT_T != null and param.REGN_DT_T != ''">
+			<![CDATA[
+            AND T1.REGN_DT <= #{param.REGN_DT_T}
+			]]>
+        </if>
+        <if test="param.ANLYS_PLCY_SECD != null and param.ANLYS_PLCY_SECD != ''">
+            AND T1.ANLYS_PLCY_SECD = #{param.ANLYS_PLCY_SECD} 
+        </if>
+        ORDER BY T1.ANLYS_PLCY_ID DESC
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.ldin.policy.vo.AnlysPlcyVO" resultMap="TBCA_ANLYS_PLCY_resultMap">
+        SELECT
+               T1.ANLYS_PLCY_ID
+               ,T1.ANLYS_PLCY_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'ANLYS_PLCY_SECD' AND ST1.CD = T1.ANLYS_PLCY_SECD) AS ANLYS_PLCY_SECD_NM
+               ,T1.ANLYS_PLCY_NM
+               ,T1.PRD_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'PRD_SECD' AND ST1.CD = T1.PRD_SECD) AS PRD_SECD_NM
+               ,T1.BIZDT_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'BIZDT_SECD' AND ST1.CD = T1.BIZDT_SECD) AS BIZDT_SECD_NM
+               ,T1.EXCLSN_STDVAL
+               ,T1.NOTIFTN_STDVAL
+               ,T1.SMS_XMSN_ALTV
+               ,T1.EMAIL_XMSN_ALTV
+               ,T1.REGR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.CUST_ID = T1.REGR_ID) AS REGR_NM
+               ,T1.REGN_DT
+               ,T1.LST_UPDUSR_ID
+               ,(SELECT ST1.EMP_NM FROM TBCA_USR ST1 WHERE ST1.CUST_ID = T1.LST_UPDUSR_ID) AS LST_UPDUSR_NM
+               ,T1.LST_UPDT_DT
+               ,T1.CHG_CNT
+        FROM TBCA_ANLYS_PLCY T1
+        WHERE T1.DEL_ALTV = 0
+        <if test="param.PRD_SECD != null and param.PRD_SECD != ''">
+            AND T1.PRD_SECD = #{param.PRD_SECD} 
+        </if>
+        <if test="param.NOTIFTN_SECT_CD != null and param.NOTIFTN_SECT_CD != ''">
+            AND T1.NOTIFTN_SECT_CD = #{param.NOTIFTN_SECT_CD} 
+        </if>
+        <if test="param.BIZDT_SECD != null and param.BIZDT_SECD != ''">
+            AND T1.BIZDT_SECD = #{param.BIZDT_SECD} 
+        </if>
+        <if test="param.ANLYS_PLCY_NM != null and param.ANLYS_PLCY_NM != ''">
+            <bind name="pattern_ANLYS_PLCY_NM" value="'%' + param.ANLYS_PLCY_NM + '%'" />            
+            AND T1.ANLYS_PLCY_NM LIKE #{pattern_ANLYS_PLCY_NM} 
+        </if>
+        <if test="param.REGN_DT_F != null and param.REGN_DT_F != ''">
+			<![CDATA[
+            AND T1.REGN_DT >= #{param.REGN_DT_F}
+			]]>
+        </if>
+        <if test="param.REGN_DT_T != null and param.REGN_DT_T != ''">
+			<![CDATA[
+            AND T1.REGN_DT <= #{param.REGN_DT_T}
+			]]>
+        </if>
+        <if test="param.ANLYS_PLCY_SECD != null and param.ANLYS_PLCY_SECD != ''">
+            AND T1.ANLYS_PLCY_SECD = #{param.ANLYS_PLCY_SECD} 
+        </if>
+        ORDER BY T1.ANLYS_PLCY_ID DESC
+    </select>
+</mapper>

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.use.tranalysis.dao.UseTrAnalysisDAO">
+	<select id="selectDtCnt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="int">
+		SELECT
+			COUNT(T1.DT) AS CNT
+		FROM TBCA_DLY_LDIN_STAT T1
+		INNER JOIN TBCA_CLDR T0
+		ON T0.DT = T1.DT		
+        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+        </if>
+        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+        </if>
+		<![CDATA[
+		AND T1.DT >= #{param.FROM_DT}
+		AND T1.DT <= #{param.TO_DT}
+		]]>
+	</select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.PRE_DT != null and param.PRE_DT != ''">
+    			SELECT *
+				FROM (
+			        SELECT
+			        	   1 AS TYPE
+					       ,T1.HM
+					       ,T1.TR_CNT AS CNT
+					       ,T1.PRCS_DT
+					       ,1 AS DT_CNT
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = #{param.DT}
+					UNION ALL
+			        SELECT
+			        	   2 AS TYPE
+					       ,T1.HM
+					       ,T1.TR_CNT AS CNT
+					       ,NULL AS PRCS_DT
+					       ,1 AS DT_CNT
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = #{param.PRE_DT}
+				) A
+				ORDER BY A.HM
+    		</when>
+    		<otherwise>
+			    SELECT *
+				FROM (
+			        SELECT
+			        	   1 AS TYPE
+					       ,T1.HM
+					       ,T1.TR_CNT AS CNT
+					       ,T1.PRCS_DT
+					       ,1 AS DT_CNT
+					       ,'' AS DT
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = #{param.DT}
+					UNION ALL
+					SELECT
+			        	   2 AS TYPE
+					       ,T1.HM
+					       ,AVG(T1.TR_CNT) AS CNT
+					       ,NULL AS PRCS_DT
+					       ,COUNT(T0.DT) AS DT_CNT
+					       ,'' AS DT
+					FROM TBCA_5MLY_LDIN_STAT T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT		
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+			        WHERE 1 = 1
+					<if test="limit != null and limit != ''">
+						AND EXISTS(
+								SELECT 1 FROM (
+										SELECT ST1.DT 
+										FROM TBCA_DLY_LDIN_STAT ST1 
+										<![CDATA[
+										WHERE ST1.DT >= #{param.FROM_DT}
+										AND ST1.DT <= #{param.TO_DT}
+										]]>
+										ORDER BY ST1.TR_CNT 
+										LIMIT ${limit}
+								) 
+								A WHERE A.DT = T1.DT
+						)
+					</if>
+					<![CDATA[
+					AND T1.DT >= #{param.FROM_DT}
+					AND T1.DT <= #{param.TO_DT}
+					]]>
+					GROUP BY T1.HM
+					UNION ALL
+			        SELECT
+			        	   3 AS TYPE
+					       ,T1.HM
+					       ,T1.TR_CNT AS CNT
+					       ,T1.PRCS_DT
+					       ,1 AS DT_CNT
+					       ,T1.DT
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = (
+						SELECT ST1.DT
+						FROM TBCA_DLY_LDIN_STAT ST1
+						<![CDATA[
+						WHERE ST1.DT >= #{param.FROM_DT}
+						AND ST1.DT <= #{param.TO_DT}
+						]]>
+						ORDER BY ST1.TR_CNT DESC
+						LIMIT 0, 1
+					)
+				) A
+				ORDER BY A.HM
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectMaxDt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="string">
+    	SELECT ST1.DT
+		FROM TBCA_DLY_LDIN_STAT ST1
+		<![CDATA[
+		WHERE ST1.DT >= #{param.FROM_DT}
+		AND ST1.DT <= #{param.TO_DT}
+		]]>
+		ORDER BY ST1.TR_CNT DESC
+		LIMIT 0, 1
+    </select>
+    <select id="selectListExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.PRE_DT != null and param.PRE_DT != ''">
+    			SELECT 
+					A.HM
+					,SUM(A.CNT1) AS CNT1
+					,SUM(A.CNT2) AS CNT2
+				FROM (
+			        SELECT
+			        	   T1.HM
+					       ,T1.TR_CNT AS CNT1
+					       ,0 AS CNT2
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = #{param.DT}
+					UNION ALL
+			        SELECT
+			        	   T1.HM
+					       ,0 AS CNT1
+					       ,T1.TR_CNT AS CNT2
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = #{param.PRE_DT}
+				) A
+				GROUP BY A.HM
+				ORDER BY A.HM
+    		</when>
+    		<otherwise>
+			    SELECT
+					A.HM
+					,SUM(A.CNT1) AS CNT1
+					,SUM(A.CNT2) AS CNT2
+					,SUM(A.CNT3) AS CNT3
+				FROM (
+			        SELECT
+			        	   T1.HM
+					       ,T1.TR_CNT AS CNT1
+					       ,0 AS CNT2
+					       ,0 AS CNT3
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = #{param.DT}
+					UNION ALL
+					SELECT
+			        	   T1.HM
+					       ,0 AS CNT1
+					       ,AVG(T1.TR_CNT) AS CNT2
+					       ,0 AS CNT3
+					FROM TBCA_5MLY_LDIN_STAT T1
+					INNER JOIN TBCA_CLDR T0
+					ON T0.DT = T1.DT		
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+			            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+			        </if>
+			        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+			            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+			        </if>
+			        WHERE 1 = 1
+					<if test="limit != null and limit != ''">
+						AND EXISTS(
+								SELECT 1 FROM (
+										SELECT ST1.DT 
+										FROM TBCA_DLY_LDIN_STAT ST1 
+										<![CDATA[
+										WHERE ST1.DT >= #{param.FROM_DT}
+										AND ST1.DT <= #{param.TO_DT}
+										]]>
+										ORDER BY ST1.TR_CNT 
+										LIMIT ${limit}
+								) 
+								A WHERE A.DT = T1.DT
+						)
+					</if>
+					<![CDATA[
+					AND T1.DT >= #{param.FROM_DT}
+					AND T1.DT <= #{param.TO_DT}
+					]]>
+					GROUP BY T1.HM
+					UNION ALL
+			        SELECT
+			        	   T1.HM
+					       ,0 AS CNT1
+					       ,0 AS CNT2
+					       ,T1.TR_CNT AS CNT3
+					FROM TBCA_5MLY_LDIN_STAT T1
+					WHERE T1.DT = #{param.MAX_DT}
+				) A
+				GROUP BY A.HM
+				ORDER BY A.HM
+    		</otherwise>
+    	</choose>
+    </select>
+</mapper>

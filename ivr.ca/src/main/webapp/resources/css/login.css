@@ -1,0 +1,37 @@
+#loginarea {float:left; width:100%;  padding-top:20%; }
+.loginbox {width:602px; height:140px;   margin:0 auto;  }
+.inputarea {width:290px; float:left;  height:140px;  border-right:1px solid #eee; padding-left:10px;  }
+.inputarea p {margin-bottom:8px; }
+.inputidpw {width:240px; height:40px; border: solid 1px #e1e1e1; background-color:#f2f2f2; font-family: 'engReg', sans-serif; padding-left:10px;}
+.loginbtn {display:block; width:240px; height:40px; border: solid 1px #0856c1; background-color:#1c69d4; text-align:center; padding-top:11px; cursor:pointer; }
+a.loginbtn {color:#fff; font-family: 'Roboto', sans-serif; font-weight:500; font-size:15px; }
+a.loginbtn:hover {text-decoration:none; }
+
+.disc {width:265px; height:140px; margin-left:45px;  padding-top:86px; float:left ; background: url('../images/ibk_logo_login.png') left 1px top 10px  no-repeat; }
+.disc p.txt { font-size:11px; color:#b6b6b6; font-family:dotum, 돋움;  }
+.disc p.chck { font-size:12px; margin:5px 0 0 -5px; vertical-align:bottom;  color:#666666;  }
+
+/* loading */
+#loading {
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  position: fixed;
+  display: block;
+  opacity: 0.2;
+  background-color: #ffffff;
+  z-index: 99999;
+  text-align: center;
+}
+
+#loading-image {
+  position: absolute;
+  margin-top:-24px;
+  margin-left:-24px;
+  top: 50%;
+  left: 50%;
+  z-index: 999999;
+}
+
+.overlay {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;opacity:0.5;filter:alpha(opacity=50);z-index:99;}

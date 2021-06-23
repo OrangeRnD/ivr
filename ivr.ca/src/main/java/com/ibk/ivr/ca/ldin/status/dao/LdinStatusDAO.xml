@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.ldin.status.dao.LdinStatusDAO">
+    <select id="selectListLdinStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	SELECT * 
+    	FROM (
+	        SELECT * 
+			FROM (
+				SELECT
+				       T1.DT
+				       ,#{param.HM} AS HM
+				       ,'C' as INPTH_SECD
+				       ,'' as INPTH_SECD_NM
+				       ,SUM(T1.CALL_CNT) AS CALL_CNT
+				       ,SUM(T1.USER_CNT) AS USER_CNT
+				       ,SUM(T1.TR_CNT) AS TR_CNT
+				       ,SUM(T1.RLTM_INQIRE_CNT) AS RLTM_INQIRE_CNT
+				       ,SUM(T1.RLTM_TRANSFR_CNT) AS RLTM_TRANSFR_CNT
+				       ,MAX(T1.PRCS_DT) AS PRCS_DT
+				       ,-1 AS NUM
+				FROM TBCA_MLY_LDIN_STAT T1
+				WHERE T1.DT = #{param.CURRENT_DT}
+				GROUP BY T1.DT
+			) A
+		    UNION ALL
+			SELECT *
+			FROM (
+				SELECT
+				       T1.DT
+				       ,#{param.HM} AS HM
+				       ,'P' as INPTH_SECD
+				       ,'' as INPTH_SECD_NM
+				       ,SUM(T1.CALL_CNT) AS CALL_CNT
+				       ,SUM(T1.USER_CNT) AS USER_CNT
+				       ,SUM(T1.TR_CNT) AS TR_CNT
+				       ,SUM(T1.RLTM_INQIRE_CNT) AS RLTM_INQIRE_CNT
+				       ,SUM(T1.RLTM_TRANSFR_CNT) AS RLTM_TRANSFR_CNT
+				       ,MAX(T1.PRCS_DT) AS PRCS_DT
+				       ,0 AS NUM
+				FROM TBCA_MLY_LDIN_STAT T1
+				WHERE T1.DT = #{param.DT}
+				<![CDATA[     
+				AND T1.HM <= #{param.HM}
+				]]>
+				GROUP BY T1.DT
+			) B
+			UNION ALL
+			SELECT *
+			FROM (
+				SELECT
+				       T1.DT
+				       ,#{param.HM} AS HM
+				       ,T2.CD AS INPTH_SECD
+				       ,T2.CD_NM AS INPTH_SECD_NM
+				       ,(CASE WHEN T1.CALL_CNT IS NULL THEN 0 ELSE T1.CALL_CNT END) AS CALL_CNT
+				       ,(CASE WHEN T1.USER_CNT IS NULL THEN 0 ELSE T1.USER_CNT END) AS USER_CNT
+				       ,(CASE WHEN T1.TR_CNT IS NULL THEN 0 ELSE T1.TR_CNT END) AS TR_CNT
+				       ,0 AS RLTM_INQIRE_CNT
+				       ,0 AS RLTM_TRANSFR_CNT
+				       ,CURRENT_TIMESTAMP AS PRCS_DT
+				       ,ROW_NUMBER() OVER(ORDER BY T2.SORT_ORDR) AS NUM
+				FROM TBCA_CD T2
+				LEFT OUTER JOIN (
+					SELECT
+						T1.DT
+						,T1.INPTH_SECD
+						,SUM(T1.CALL_CNT) AS CALL_CNT
+						,SUM(T1.USER_CNT) AS USER_CNT
+						,SUM(T1.TR_CNT) AS TR_CNT
+					FROM TBCA_MLY_INPTH_LDIN_STAT T1
+					WHERE T1.DT = #{param.CURRENT_DT}
+					GROUP BY T1.DT, T1.INPTH_SECD
+				) T1
+				ON T1.INPTH_SECD = T2.CD
+				WHERE T2.DEL_ALTV = 0
+				AND T2.USE_ALTV = 1
+				AND T2.CD_CLSFCTN = 'INPTH_SECD'
+			) C	
+		) A 
+		ORDER BY A.NUM
+    </select>
+    <select id="selectLstLdinStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+		       T1.DT
+			   ,#{param.HM} AS HM
+		       ,SUM(T1.CALL_CNT) AS CALL_CNT
+		       ,SUM(T1.USER_CNT) AS USER_CNT
+		       ,SUM(T1.TR_CNT) AS TR_CNT
+		       ,SUM(T1.RLTM_INQIRE_CNT) AS RLTM_INQIRE_CNT
+		       ,SUM(T1.RLTM_TRANSFR_CNT) AS RLTM_TRANSFR_CNT
+		       ,MAX(T1.PRCS_DT) AS PRCS_DT
+		FROM TBCA_MLY_LDIN_STAT T1
+		WHERE T1.DT = #{param.DT}
+		<![CDATA[     
+		AND T1.HM <= #{param.HM}
+		]]>
+		GROUP BY T1.DT
+    </select>
+    <select id="selectExcelMlyLdinStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+		       T1.DT
+			   ,T1.HM
+		       ,T1.CALL_CNT
+		       ,T1.USER_CNT
+		       ,T1.TR_CNT
+		       ,T1.ERR_CNT
+		       ,T1.RLTM_INQIRE_CNT
+		       ,T1.RLTM_TRANSFR_CNT
+		FROM TBCA_MLY_LDIN_STAT T1
+		WHERE T1.DT = #{param.CURRENT_DT}
+		UNION ALL
+		SELECT
+		       T1.DT
+			   ,T1.HM
+		       ,T1.CALL_CNT
+		       ,T1.USER_CNT
+		       ,T1.TR_CNT
+		       ,T1.ERR_CNT
+		       ,T1.RLTM_INQIRE_CNT
+		       ,T1.RLTM_TRANSFR_CNT
+		FROM TBCA_MLY_LDIN_STAT T1
+		WHERE T1.DT = #{param.DT}
+    </select>
+    <select id="selectListTrStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+	    SELECT *
+	    FROM (    
+	        SELECT
+	               T1.DT
+	               ,T1.HM
+	               ,T1.CNT
+	        FROM TBCA_30MLY_TR_STAT T1
+			<![CDATA[
+			WHERE T1.DT <= #{param.CURRENT_DT}
+			AND T1.DT >= #{param.PREVIOUS_DT}
+			]]>
+	        ORDER BY T1.DT DESC, T1.HM DESC
+	        LIMIT 0, 48
+	    ) A
+	    ORDER BY A.DT ASC, A.HM ASC
+    </select>
+    <!-- select id="selectListInpthLdinStat" parameterType="string" resultType="hashMap">
+	    SELECT
+               T1.DT
+               ,T1.INPTH_SECD
+               ,(SELECT ST1.CD_NM FROM TBCA_CD ST1 WHERE ST1.CD_CLSFCTN = 'INPTH_SECD' AND ST1.CD = T1.INPTH_SECD) AS INPTH_SECD_NM
+               ,T1.CALL_CNT
+               ,T1.USER_CNT
+               ,T1.TR_CNT
+        FROM TBCA_DLY_INPTH_LDIN_STAT T1
+        WHERE T1.DT = #{dt}
+        ORDER BY T1.INPTH_SECD
+    </select -->
+</mapper>

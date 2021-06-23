@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.report.daily.dao.DailyReportDAO">
+	<select id="selectListMedaStat" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+			B.CD AS MEDA_SECD
+			,B.CD_NM AS MEDA_SECD_NM
+			,SUM(CASE WHEN A.TYPE = 1 THEN A.TOT_CNT ELSE 0 END) AS TOT_CNT1
+			,SUM(CASE WHEN A.TYPE = 2 THEN A.TOT_CNT ELSE 0 END) AS TOT_CNT2
+			,SUM(CASE WHEN A.TYPE = 3 THEN A.TOT_CNT ELSE 0 END) AS TOT_CNT3
+			,SUM(CASE WHEN A.TYPE = 4 THEN A.TOT_CNT ELSE 0 END) AS TOT_CNT4
+		FROM TBCA_CD B
+		LEFT OUTER JOIN (
+			SELECT 
+				1 AS TYPE
+				,A.MEDA_SECD
+				,A.TOT_CNT
+			FROM (
+				SELECT 
+					T1.MEDA_SECD
+					,SUM(T1.CNT) AS TOT_CNT
+				FROM TBCA_MLY_MEDA_CALL_STAT T1
+				WHERE T1.DT = #{param.DT}
+				GROUP BY T1.MEDA_SECD
+			) A
+			UNION ALL
+			SELECT 
+				2 AS TYPE
+				,T1.MEDA_SECD
+				,T1.CNT AS TOT_CNT
+			FROM TBCA_DLY_MEDA_CALL_STAT T1
+			WHERE T1.DT = #{param.P_DT}
+			UNION ALL
+			SELECT 
+				3 AS TYPE
+				,A.MEDA_SECD
+				,A.TOT_CNT
+			FROM (
+				SELECT 
+					T1.MEDA_SECD
+					,AVG(T1.CNT) AS TOT_CNT
+				FROM TBCA_DLY_MEDA_CALL_STAT T1
+				<![CDATA[
+				WHERE T1.DT >= #{param.PW_FROM_DT}
+				AND T1.DT <= #{param.PW_TO_DT}
+				]]>
+				GROUP BY T1.MEDA_SECD
+			) A
+			UNION ALL
+			SELECT 
+				4 AS TYPE
+				,A.MEDA_SECD
+				,A.TOT_CNT
+			FROM (
+				SELECT 
+					T1.MEDA_SECD
+					,AVG(T1.CNT) AS TOT_CNT
+				FROM TBCA_DLY_MEDA_CALL_STAT T1
+				<![CDATA[
+				WHERE T1.DT >= #{param.PM_FROM_DT}
+				AND T1.DT <= #{param.PM_TO_DT}
+				]]>
+				GROUP BY T1.MEDA_SECD
+			) A
+		) A
+		ON A.MEDA_SECD = B.CD
+		WHERE B.DEL_ALTV = 0
+		AND B.USE_ALTV = 1
+		AND B.CD_CLSFCTN = 'MEDA_SECD'
+		GROUP BY B.CD, B.CD_NM
+		ORDER BY B.SORT_ORDR
+    </select>
+    <select id="selectListPlcyRslt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+	       T2.ANLYS_PLCY_NM
+	       ,T1.EXCLSN_STDVAL
+	       ,T1.NOTIFTN_STDVAL
+	       ,T1.SMS_XMSN_ALTV
+	       ,T1.EMAIL_XMSN_ALTV
+		   ,T1.OCCRRNC_DT
+           ,T1.OCCRRNC_CNT
+           ,T1.CMPR_CNT
+		FROM TBCA_ANLYS_PLCY_RSLT T1
+		INNER JOIN TBCA_ANLYS_PLCY T2
+		ON T2.DEL_ALTV = 0
+		AND T2.ANLYS_PLCY_ID = T1.ANLYS_PLCY_ID
+		<![CDATA[
+		WHERE T1.OCCRRNC_DT > #{param.FROM_TS}
+		AND T1.OCCRRNC_DT < #{param.TO_TS}
+		]]>
+		ORDER BY T1.ANLYS_PLCY_RSLT_SN DESC
+    </select>
+    <select id="selectListSrvc" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+			A.SRVC_CD
+			,(CASE WHEN A.TYPE != 4 AND B.SRVC_NM IS NULL THEN A.SRVC_CD WHEN A.TYPE = 4 THEN A.TRAN_NM ELSE B.SRVC_NM END) AS SRVC_NM
+			,A.CNT
+			,A.P_CNT
+			,A.PW_CNT
+			,A.TYPE
+			,A.NUM
+		FROM (
+			SELECT 
+				'1' AS TYPE
+				,A.SRVC_CD
+				,A.CNT
+				,A.P_CNT
+				,A.PW_CNT
+				,'' AS TRAN_NM
+				,ROW_NUMBER() OVER(ORDER BY A.CNT DESC) AS NUM
+			FROM (	
+				SELECT
+				       A.SRVC_CD
+				       ,A.TCNT AS CNT
+				       ,(CASE WHEN B.CNT IS NULL THEN 0 ELSE B.CNT END) AS P_CNT
+				       ,(CASE WHEN C.CNT IS NULL THEN 0 ELSE C.CNT END) AS PW_CNT
+				FROM (	
+					SELECT
+						   T1.SRVC_CD
+					       ,SUM(T1.CNT) AS TCNT
+					FROM TBCA_MLY_SRVC_STAT T1
+					WHERE T1.DT = #{param.DT}
+					AND T1.SRVC_CD != '0000'
+					AND T1.SRVC_CD != '0001'
+					AND T1.SRVC_CD != '0002'
+					GROUP BY T1.SRVC_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 10
+				) A
+				LEFT OUTER JOIN TBCA_DLY_SRVC_STAT B
+				ON B.DT = #{param.P_DT}
+				AND B.SRVC_CD = A.SRVC_CD
+				LEFT OUTER JOIN (
+					SELECT
+						   T1.SRVC_CD
+					       ,AVG(T1.CNT) AS CNT
+					FROM TBCA_DLY_SRVC_STAT T1
+					<![CDATA[
+					WHERE T1.DT >= #{param.PW_FROM_DT}
+					AND T1.DT <= #{param.PW_TO_DT}
+					]]>
+					AND T1.SRVC_CD != '0000'
+					AND T1.SRVC_CD != '0001'
+					AND T1.SRVC_CD != '0002'
+					GROUP BY T1.SRVC_CD
+				) C
+				ON C.SRVC_CD = A.SRVC_CD
+			) A
+			UNION ALL
+			SELECT 
+				'2' AS TYPE
+				,A.SRVC_CD
+				,A.CNT
+				,A.P_CNT
+				,0 AS PW_CNT
+				,'' AS TRAN_NM
+				,ROW_NUMBER() OVER(ORDER BY A.CNT DESC) AS NUM
+			FROM (	
+				SELECT
+				       A.SRVC_CD
+				       ,A.TCNT AS CNT
+				       ,(CASE WHEN B.CNT IS NULL THEN 0 ELSE B.CNT END) AS P_CNT
+				FROM (	
+			        SELECT
+						   T1.SRVC_CD
+					       ,SUM(T1.CNT) AS TCNT
+					FROM TBCA_MLY_LAST_SRVC_STAT T1
+					WHERE T1.DT = #{param.DT}
+					AND T1.SRVC_CD != '0000'
+					AND T1.SRVC_CD != '0001'
+					AND T1.SRVC_CD != '0002'
+					GROUP BY T1.SRVC_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 10
+				) A
+				LEFT OUTER JOIN TBCA_DLY_LAST_SRVC_STAT B
+				ON B.DT = #{param.P_DT}
+				AND B.SRVC_CD = A.SRVC_CD
+			) A
+			UNION ALL
+			SELECT 
+				'3' AS TYPE
+				,A.SRVC_CD
+				,A.CNT
+				,A.P_CNT
+				,0 AS PW_CNT
+				,'' AS TRAN_NM
+				,ROW_NUMBER() OVER(ORDER BY A.CNT DESC) AS NUM
+			FROM (	
+				SELECT
+					   A.SRVC_CD
+				       ,A.TCNT AS CNT
+				       ,(CASE WHEN B.CNT IS NULL THEN 0 ELSE B.CNT END) AS P_CNT
+				FROM (	
+			        SELECT
+						   T1.SRVC_CD
+					       ,SUM(T1.CNT) AS TCNT
+					FROM TBCA_MLY_SRVC_STAT T1
+					WHERE T1.DT = #{param.DT}
+					AND T1.SRVC_CD LIKE '5%'
+					GROUP BY T1.SRVC_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 10
+				) A
+				LEFT OUTER JOIN TBCA_DLY_SRVC_STAT B
+				ON B.DT = #{param.P_DT}
+				AND B.SRVC_CD = A.SRVC_CD
+			) A
+			UNION ALL
+			SELECT 
+				'4' AS TYPE
+				,A.TRAN_CD AS SRVC_CD
+				,A.CNT
+				,A.P_CNT
+				,0 AS PW_CNT
+				,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+				,ROW_NUMBER() OVER(ORDER BY A.CNT DESC) AS NUM
+			FROM (	
+				SELECT
+				       A.TRAN_CD
+				       ,A.TCNT AS CNT
+				       ,(CASE WHEN B.CNT IS NULL THEN 0 ELSE B.CNT END) AS P_CNT
+				FROM (	
+			        SELECT
+					       T1.TRAN_CD
+					       ,SUM(T1.CNT) AS TCNT
+					FROM TBCA_MLY_TR_TIMEOUT_STAT T1
+					WHERE T1.DT = #{param.DT}
+					GROUP BY T1.TRAN_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 10
+				) A
+				LEFT OUTER JOIN TBCA_DLY_TR_TIMEOUT_STAT B
+				ON B.DT = #{param.P_DT}
+				AND B.TRAN_CD = A.TRAN_CD
+			) A
+			LEFT OUTER JOIN TBCA_TR_CD B
+			ON B.TRAN_CD = A.TRAN_CD
+		) A
+		LEFT OUTER JOIN TBCA_SRVC_CD B
+		ON B.SRVC_CD = A.SRVC_CD
+		ORDER BY A.TYPE, A.NUM
+    </select>
+    <insert id="insertRptNotiftnHist" parameterType="com.ibk.ivr.ca.report.daily.vo.RptNotiftnHistVO" useGeneratedKeys="true" keyColumn="SN" keyProperty="sn">
+        INSERT INTO TBCA_RPT_NOTIFTN_HIST (
+        	SN
+            ,DT
+            ,EMP_NR
+            ,SNDNG_ALTV
+            ,OPRTR_ID
+            ,PRCS_DT
+        ) VALUES (
+            #{sn}
+            ,#{dt}
+            ,#{empNr}
+            ,#{sndngAltv}
+            ,#{oprtrId}
+            ,#{prcsDt}
+        )
+    </insert>
+    <update id="updateRptNotiftnHistForSuccess" parameterType="com.ibk.ivr.ca.report.daily.vo.RptNotiftnHistVO">
+        UPDATE TBCA_RPT_NOTIFTN_HIST SET
+            SNDNG_ALTV = 1
+        WHERE SN = #{sn}
+    </update>
+</mapper>

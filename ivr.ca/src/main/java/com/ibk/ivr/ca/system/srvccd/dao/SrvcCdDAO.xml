@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.srvccd.dao.SrvcCdDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.srvccd.vo.SrvcCdVO">
+        INSERT INTO TBCA_SRVC_CD (
+            SRVC_CD
+            ,SRVC_NM
+            ,MONITORING_YN
+            ,REGN_DT
+        ) VALUES (
+            #{srvcCd}
+            ,#{srvcNm}
+            ,#{monitoringYn}
+            ,#{regnDt}
+        )
+    </insert>
+    <update id="update" parameterType="com.ibk.ivr.ca.system.srvccd.vo.SrvcCdVO">
+        UPDATE TBCA_SRVC_CD SET
+            SRVC_CD = #{srvcCd}
+            ,SRVC_NM = #{srvcNm}
+            ,MONITORING_YN = #{monitoringYn}
+            ,REGN_DT = #{regnDt}
+        WHERE SRVC_CD = #{oldSrvcCd}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.srvccd.vo.SrvcCdVO">
+        DELETE FROM TBCA_SRVC_CD
+        WHERE SRVC_CD = #{oldSrvcCd}
+    </update>
+    <select id="select" parameterType="string" resultType="com.ibk.ivr.ca.system.srvccd.vo.SrvcCdVO">
+        SELECT
+               T1.SRVC_CD AS srvcCd
+               ,T1.SRVC_NM AS srvcNm
+               ,T1.MONITORING_YN AS monitoringYn
+               ,T1.REGN_DT AS regnDt
+        FROM TBCA_SRVC_CD T1
+        WHERE T1.SRVC_CD = #{srvcCd}
+    </select>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.SRVC_CD)
+        FROM TBCA_SRVC_CD T1
+        WHERE T1.SRVC_CD != ''
+        AND T1.SRVC_CD != ' '
+        AND T1.SRVC_CD != '	'
+        <if test="param.MONITORING_YN != null and param.MONITORING_YN != ''">
+            AND T1.MONITORING_YN = #{param.MONITORING_YN} 
+        </if>
+        <if test="param.SRVC_CD != null and param.SRVC_CD != ''">
+            <bind name="pattern_SRVC_CD" value="'%' + param.SRVC_CD + '%'" />            
+            AND T1.SRVC_CD LIKE #{pattern_SRVC_CD} 
+        </if>
+        <if test="param.SRVC_NM != null and param.SRVC_NM != ''">
+            <bind name="pattern_SRVC_NM" value="'%' + param.SRVC_NM + '%'" />            
+            AND T1.SRVC_NM LIKE #{pattern_SRVC_NM} 
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.SRVC_CD
+               ,T1.SRVC_NM
+               ,T1.MONITORING_YN
+        FROM TBCA_SRVC_CD T1
+        WHERE T1.SRVC_CD != ''
+        AND T1.SRVC_CD != ' '
+        AND T1.SRVC_CD != '	'
+        <if test="param.MONITORING_YN != null and param.MONITORING_YN != ''">
+            AND T1.MONITORING_YN = #{param.MONITORING_YN} 
+        </if>
+        <if test="param.SRVC_CD != null and param.SRVC_CD != ''">
+            <bind name="pattern_SRVC_CD" value="'%' + param.SRVC_CD + '%'" />            
+            AND T1.SRVC_CD LIKE #{pattern_SRVC_CD} 
+        </if>
+        <if test="param.SRVC_NM != null and param.SRVC_NM != ''">
+            <bind name="pattern_SRVC_NM" value="'%' + param.SRVC_NM + '%'" />            
+            AND T1.SRVC_NM LIKE #{pattern_SRVC_NM} 
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.SRVC_CD
+        </if>
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.SRVC_CD
+               ,T1.SRVC_NM
+               ,T1.MONITORING_YN
+        FROM TBCA_SRVC_CD T1
+        WHERE T1.SRVC_CD != ''
+        AND T1.SRVC_CD != ' '
+        AND T1.SRVC_CD != '	'
+        <if test="param.MONITORING_YN != null and param.MONITORING_YN != ''">
+            AND T1.MONITORING_YN = #{param.MONITORING_YN} 
+        </if>
+        <if test="param.SRVC_CD != null and param.SRVC_CD != ''">
+            <bind name="pattern_SRVC_CD" value="'%' + param.SRVC_CD + '%'" />            
+            AND T1.SRVC_CD LIKE #{pattern_SRVC_CD} 
+        </if>
+        <if test="param.SRVC_NM != null and param.SRVC_NM != ''">
+            <bind name="pattern_SRVC_NM" value="'%' + param.SRVC_NM + '%'" />            
+            AND T1.SRVC_NM LIKE #{pattern_SRVC_NM} 
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.SRVC_CD
+        </if>
+    </select>
+    <select id="selectFind" parameterType="string" resultType="hashMap">
+        <bind name="pattern_SRVC_NM" value="'%' + nm + '%'" />   
+        SELECT
+               T1.SRVC_CD
+               ,(CASE WHEN T1.SRVC_CD LIKE #{pattern_SRVC_NM} THEN T1.SRVC_CD ELSE T1.SRVC_NM END) AS SRVC_NM
+        FROM TBCA_SRVC_CD T1
+        WHERE T1.SRVC_NM LIKE #{pattern_SRVC_NM} 
+        OR T1.SRVC_CD LIKE #{pattern_SRVC_NM} 
+        ORDER BY T1.SRVC_NM
+    </select>
+    <select id="selectListForSession" parameterType="hashMap" resultType="hashMap">
+        SELECT
+               T1.SRVC_CD
+               ,T1.SRVC_NM
+        FROM TBCA_SRVC_CD T1
+        WHERE 1 = 1
+        <if test="EX_CDS != null">
+        	<foreach item="item" index="index" collection="EX_CDS" open="AND NOT(" separator=" AND " close=")">
+		        T1.SRVC_CD != #{item}
+		  	</foreach>
+        </if>
+        <if test="EX_CD != null">
+			AND T1.SRVC_CD = #{EX_CD}
+        </if>
+    </select>
+</mapper>

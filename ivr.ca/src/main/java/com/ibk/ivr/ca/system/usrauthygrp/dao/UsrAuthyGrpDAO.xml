@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.usrauthygrp.dao.UsrAuthyGrpDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+    	<selectKey keyProperty="sn" resultType="int" order="BEFORE" statementType="PREPARED">
+            SELECT (CASE WHEN SN IS NULL THEN 1 ELSE SN+1 END) AS SN
+            FROM (
+	            SELECT MAX(T1.SN) AS SN
+	            FROM TBCA_USR_AUTHY_GRP T1
+	            WHERE T1.USR_ID = #{usrId}
+            ) T1
+        </selectKey>
+        INSERT INTO TBCA_USR_AUTHY_GRP (
+            USR_ID
+            ,SN
+            ,AUTHY_GRP_CD
+            ,DEL_ALTV
+            ,REGR_ID
+            ,REGN_DT
+            ,LST_UPDUSR_ID
+            ,LST_UPDT_DT
+            ,CHG_CNT
+        ) VALUES (
+            #{usrId}
+            ,#{sn}
+            ,#{authyGrpCd}
+            ,0
+            ,#{regrId}
+            ,#{regnDt}
+            ,#{regrId}
+            ,#{regnDt}
+            ,0
+        )
+    </insert>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.usr.vo.UsrVO">
+        UPDATE TBCA_USR_AUTHY_GRP SET
+            DEL_ALTV = 1
+            ,LST_UPDUSR_ID = #{lstUpdusrId}
+            ,LST_UPDT_DT = #{lstUpdtDt}
+            ,CHG_CNT = CHG_CNT+1
+        WHERE DEL_ALTV = 0
+        AND AUTHY_GRP_CD != #{authyGrpCd}
+        AND USR_ID = #{usrId}
+    </update>
+</mapper>

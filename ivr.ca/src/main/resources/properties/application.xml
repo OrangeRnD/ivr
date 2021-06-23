@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>application properties</comment>
+	<entry key="constants.session.time">86400</entry>
+	<entry key="dataSource.url">jdbc:mysql://222.121.135.68:3306/m8?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true&amp;serverTimezone=UTC</entry>
+	<entry key="dataSource.username">m8</entry>
+	<!-- <entry key="dataSource.password">ENC(EfSx5ZB6bPtjnWO2oQvimKjw8oqktW5X)</entry> --> <!-- MD5 -->
+	<entry key="dataSource.password">ENC(cdfMqxbZene3tGh7yAQx8zQceWsJEuCwfJ69hm4ceU0=)</entry> <!-- AES256 -->
+	<entry key="constants.image.path">D:/git/datai/ibk.ivr.ca/ca/src/main/webapp/resources/report/</entry>
+	<entry key="constants.image.server">http://127.0.0.1:8080</entry>
+</properties>

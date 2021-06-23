@@ -1,0 +1,1 @@
+<%@ page contentType="application/json" pageEncoding="UTF-8"%>{"status":<%=request.getAttribute("javax.servlet.error.status") %>,"code":<%=request.getAttribute("javax.servlet.error.code") %>,"message":"<%=request.getAttribute("javax.servlet.error.message") %>"}

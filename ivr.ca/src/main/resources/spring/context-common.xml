@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	
+	<bean id="exceptionResolver" class="com.ibk.ivr.ca.common.exception.CommonHandlerExceptionResolver">
+  		<property name="urlView" value="error/error"/>
+  		<property name="jsonView" value="error/error_json"/>
+	</bean>
+	
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>/WEB-INF/config/message/message-common</value>
+			</list>
+		</property>
+		<property name="cacheSeconds">
+			<value>3600</value>
+		</property>
+	</bean>
+
+    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+        <property name="velocityProperties">
+            <value>
+                resource.loader=class
+                class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+            </value>
+        </property>
+    </bean>
+	
+	<!-- ### START ### / Jasypt 설정 -->
+	
+	<!-- ### MD5 ### -->
+	<!-- <bean id="environmentVariablesConfiguration" class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+		<property name="algorithm" value="PBEWithMD5AndDES" />
+		<property name="password" value="jasyptPass" />
+	</bean> -->
+	<!-- ### MD5 ### -->
+	
+	<!-- ### AES256 ### -->
+	<bean id="bouncyCastleProvider" class="org.bouncycastle.jce.provider.BouncyCastleProvider"/>
+	<bean id="environmentVariablesConfiguration" class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+		<property name="provider" ref="bouncyCastleProvider" />
+		<property name="algorithm" value="PBEWITHSHA256AND256BITAES-CBC-BC" />
+		<property name="password" value="jasyptPass" />
+	</bean>
+	<!-- ### AES256 ### -->
+
+	<bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+		<property name="config" ref="environmentVariablesConfiguration" />
+	</bean>
+
+	<bean id="propertyConfig" class="org.jasypt.spring4.properties.EncryptablePropertyPlaceholderConfigurer">
+		<constructor-arg ref="configurationEncryptor" />
+		<property name="locations">
+			<list>
+				<value>classpath:/properties/application.xml</value>
+			</list>
+		</property>
+	</bean>
+	<!-- ### END ### / Jasypt 설정 -->
+
+	<util:properties id="propertyConfigurer" location="classpath:/properties/application.xml"/>
+	<context:property-placeholder properties-ref="propertyConfigurer" />
+	
+	<context:component-scan base-package="com.ibk.ivr.ca">
+       <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+</beans>

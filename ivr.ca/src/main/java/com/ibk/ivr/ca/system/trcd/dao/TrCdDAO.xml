@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.trcd.dao.TrCdDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.trcd.vo.TrCdVO">
+        INSERT INTO TBCA_TR_CD (
+            TRAN_CD
+            ,TRAN_NM
+            ,REGN_DT
+        ) VALUES (
+            #{tranCd}
+            ,#{tranNm}
+            ,#{regnDt}
+        )
+    </insert>
+    <update id="update" parameterType="com.ibk.ivr.ca.system.trcd.vo.TrCdVO">
+        UPDATE TBCA_TR_CD SET
+            TRAN_CD = #{tranCd}
+            ,TRAN_NM = #{tranNm}
+            ,REGN_DT = #{regnDt}
+        WHERE TRAN_CD = #{oldTranCd}
+    </update>
+    <update id="delete" parameterType="com.ibk.ivr.ca.system.trcd.vo.TrCdVO">
+        DELETE FROM TBCA_TR_CD
+        WHERE TRAN_CD = #{oldTranCd}
+    </update>
+    <select id="select" parameterType="string" resultType="com.ibk.ivr.ca.system.trcd.vo.TrCdVO">
+        SELECT
+               T1.TRAN_CD AS tranCd
+               ,T1.TRAN_NM AS tranNm
+               ,T1.REGN_DT AS regnDt
+        FROM TBCA_TR_CD T1
+        WHERE T1.TRAN_CD = #{tranCd}
+    </select>
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+        SELECT
+        COUNT(T1.TRAN_CD)
+        FROM TBCA_TR_CD T1
+        WHERE T1.TRAN_CD != ''
+        AND T1.TRAN_CD != ' '
+        AND T1.TRAN_CD != '	'
+        <if test="param.TRAN_CD != null and param.TRAN_CD != ''">
+            <bind name="pattern_TRAN_CD" value="'%' + param.TRAN_CD + '%'" />            
+            AND T1.TRAN_CD LIKE #{pattern_TRAN_CD} 
+        </if>
+        <if test="param.TRAN_NM != null and param.TRAN_NM != ''">
+            <bind name="pattern_TRAN_NM" value="'%' + param.TRAN_NM + '%'" />            
+            AND T1.TRAN_NM LIKE #{pattern_TRAN_NM} 
+        </if>
+    </select>
+    <select id="selectList" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.TRAN_CD
+               ,T1.TRAN_NM
+        FROM TBCA_TR_CD T1
+        WHERE T1.TRAN_CD != ''
+        AND T1.TRAN_CD != ' '
+        AND T1.TRAN_CD != '	'
+        <if test="param.TRAN_CD != null and param.TRAN_CD != ''">
+            <bind name="pattern_TRAN_CD" value="'%' + param.TRAN_CD + '%'" />            
+            AND T1.TRAN_CD LIKE #{pattern_TRAN_CD} 
+        </if>
+        <if test="param.TRAN_NM != null and param.TRAN_NM != ''">
+            <bind name="pattern_TRAN_NM" value="'%' + param.TRAN_NM + '%'" />            
+            AND T1.TRAN_NM LIKE #{pattern_TRAN_NM} 
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.TRAN_CD
+        </if>
+        <if test="limit != null and limit != ''">
+            LIMIT ${limit}
+        </if>
+    </select>
+    <select id="selectExcel" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+        SELECT
+               T1.TRAN_CD
+               ,T1.TRAN_NM
+        FROM TBCA_TR_CD T1
+        WHERE T1.TRAN_CD != ''
+        AND T1.TRAN_CD != ' '
+        AND T1.TRAN_CD != '	'
+        <if test="param.TRAN_CD != null and param.TRAN_CD != ''">
+            <bind name="pattern_TRAN_CD" value="'%' + param.TRAN_CD + '%'" />            
+            AND T1.TRAN_CD LIKE #{pattern_TRAN_CD} 
+        </if>
+        <if test="param.TRAN_NM != null and param.TRAN_NM != ''">
+            <bind name="pattern_TRAN_NM" value="'%' + param.TRAN_NM + '%'" />            
+            AND T1.TRAN_NM LIKE #{pattern_TRAN_NM} 
+        </if>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY T1.TRAN_CD
+        </if>
+    </select>
+    <select id="selectFind" parameterType="string" resultType="hashMap">
+        <bind name="pattern_TRAN_NM" value="'%' + nm + '%'" />   
+        SELECT
+               T1.TRAN_CD
+               ,(CASE WHEN T1.TRAN_CD LIKE #{pattern_TRAN_NM} THEN T1.TRAN_CD ELSE T1.TRAN_NM END) AS TRAN_NM
+        FROM TBCA_TR_CD T1
+        WHERE T1.TRAN_NM LIKE #{pattern_TRAN_NM} 
+        OR T1.TRAN_CD LIKE #{pattern_TRAN_NM} 
+        ORDER BY T1.TRAN_NM
+    </select>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.cldr.dao.CldrDAO">
+    <select id="selectExists" parameterType="string" resultType="string">
+        SELECT
+               T1.DT
+        FROM TBCA_CLDR T1
+        WHERE T1.DT LIKE #{dt}
+        LIMIT 0, 1
+    </select>
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.cldr.vo.CldrVO">
+        INSERT INTO TBCA_CLDR (
+            DT
+            ,DT_SECD
+            ,RESTDE_ALTV
+            ,REGN_DT
+        ) VALUES (
+            #{dt}
+            ,#{dtSecd}
+            ,#{restdeAltv}
+            ,#{regnDt}
+        )
+    </insert>
+    <select id="selectPeriod" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="int">
+        SELECT
+               COUNT(T0.DT) AS CNT
+        FROM TBCA_CLDR T0
+        WHERE 1 = 1
+        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+        </if>
+        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+        </if>
+		<![CDATA[
+		AND T0.DT >= #{param.FROM_DT}
+		AND T0.DT <= #{param.TO_DT}
+		]]>
+    </select>
+    <select id="selectPeriod2" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="int">
+    	SELECT
+    		*
+    	FROM (
+	        SELECT
+	               COUNT(T0.DT) AS CNT
+	        FROM TBCA_CLDR T0
+	        WHERE 1 = 1
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+	            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+	        </if>
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+	            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+	        </if>
+			<![CDATA[
+			AND T0.DT >= #{param.FROM_DT1}
+			AND T0.DT <= #{param.TO_DT1}
+			]]>
+			UNION ALL
+	        SELECT
+	               COUNT(T0.DT) AS CNT
+	        FROM TBCA_CLDR T0
+	        WHERE 1 = 1
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 1">
+	            AND NOT(T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV != #{param.RESTDE_ALTV})
+	        </if>
+	        <if test="param.RESTDE_ALTV != null and param.RESTDE_ALTV == 0">
+	            AND T0.DT_SECD != '1' AND T0.DT_SECD != '7' AND T0.RESTDE_ALTV = #{param.RESTDE_ALTV}
+	        </if>
+			<![CDATA[
+			AND T0.DT >= #{param.FROM_DT2}
+			AND T0.DT <= #{param.TO_DT2}
+			]]>
+		) A
+    </select>
+</mapper>

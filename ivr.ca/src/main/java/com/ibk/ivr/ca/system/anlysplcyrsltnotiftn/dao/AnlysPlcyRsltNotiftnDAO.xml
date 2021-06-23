@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.system.anlysplcyrsltnotiftn.dao.AnlysPlcyRsltNotiftnDAO">
+    <insert id="insert" parameterType="com.ibk.ivr.ca.system.anlysplcyrsltnotiftn.vo.AnlysPlcyRsltNotiftnVO">
+        INSERT INTO TBCA_ANLYS_PLCY_RSLT_NOTIFTN (
+            ANLYS_PLCY_RSLT_SN
+            ,USR_ID
+            ,XMSN_CN
+            ,SMS_XMSN_ALTV
+            ,EMAIL_XMSN_ALTV
+            ,TELNO
+            ,EMAIL
+            ,PRCS_DT
+        ) VALUES (
+            #{anlysPlcyRsltSn}
+            ,#{usrId}
+            ,#{xmsnCn}
+            ,#{smsXmsnAltv}
+            ,#{emailXmsnAltv}
+            ,#{telno}
+            ,#{email}
+            ,#{prcsDt}
+        )
+    </insert>
+</mapper>

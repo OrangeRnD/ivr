@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ibk.ivr.ca.analysis.error.dao.AnalysisErrorDAO">
+    <select id="selectTotalErrCnt" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+		        SELECT 
+					SUM(T1.CNT) AS CNT
+				FROM (
+					SELECT
+						A.DT
+						,A.CNT
+					FROM TBCA_DLY_ERR_STAT A
+					<![CDATA[
+					WHERE A.DT >= #{param.FROM_DT}
+					AND A.DT <= #{param.TO_DT}
+					]]>
+					AND A.DT != #{param.CURRENT_DATE}
+					UNION ALL
+					SELECT *
+					FROM (
+						SELECT 
+								A.DT
+								,SUM(A.CNT) AS CNT
+						FROM TBCA_MLY_ERR_STAT A
+						WHERE A.DT = #{param.CURRENT_DATE}
+						GROUP BY A.DT
+					) A
+				) T1
+    		</when>
+    		<otherwise>
+		        SELECT 
+					SUM(T1.CNT) AS CNT
+				FROM TBCA_DLY_ERR_STAT T1
+				<![CDATA[
+				WHERE T1.DT >= #{param.FROM_DT}
+				AND T1.DT <= #{param.TO_DT}
+				]]>
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectListErrTop5" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+    			SELECT 
+					A.ERR_CD
+					,(CASE WHEN B.ERR_CN IS NULL THEN A.ERR_CD ELSE B.ERR_CN END) AS ERR_CN
+					,A.TCNT AS CNT
+				FROM (	
+					SELECT 
+						T1.ERR_CD
+						,SUM(T1.CNT) AS TCNT
+					FROM (
+						SELECT
+							A.DT
+							,A.ERR_CD
+							,A.CNT
+						FROM TBCA_DLY_ERR_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.DT != #{param.CURRENT_DATE}
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,A.ERR_CD
+									,SUM(A.CNT) AS CNT
+							FROM TBCA_MLY_ERR_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							GROUP BY A.DT, A.ERR_CD
+						) A
+					) T1
+					GROUP BY T1.ERR_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 5
+				) A
+				LEFT OUTER JOIN TBCA_ERR_CD B
+				ON B.ERR_CD = A.ERR_CD
+    		</when>
+    		<otherwise>
+				SELECT 
+					A.ERR_CD
+					,(CASE WHEN B.ERR_CN IS NULL THEN A.ERR_CD ELSE B.ERR_CN END) AS ERR_CN
+					,A.TCNT AS CNT
+				FROM (	
+					SELECT 
+						T1.ERR_CD
+						,SUM(T1.CNT) AS TCNT
+					FROM TBCA_DLY_ERR_STAT T1
+					<![CDATA[
+					WHERE T1.DT >= #{param.FROM_DT}
+					AND T1.DT <= #{param.TO_DT}
+					]]>
+					GROUP BY T1.ERR_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 5
+				) A
+				LEFT OUTER JOIN TBCA_ERR_CD B
+				ON B.ERR_CD = A.ERR_CD
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectListTrByErrTop5" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+    			SELECT 
+					A.TRAN_CD
+					,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+					,A.TCNT AS CNT
+				FROM (	
+					SELECT 
+						T1.TRAN_CD
+						,SUM(T1.CNT) AS TCNT
+					FROM (
+						SELECT
+							A.DT
+							,A.TRAN_CD
+							,A.CNT
+						FROM TBCA_DLY_TR_ERR_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.DT != #{param.CURRENT_DATE}
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,A.TRAN_CD
+									,SUM(A.CNT) AS CNT
+							FROM TBCA_MLY_TR_ERR_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							GROUP BY A.DT, A.TRAN_CD
+						) A
+					) T1
+					GROUP BY T1.TRAN_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 5
+				) A
+				LEFT OUTER JOIN TBCA_TR_CD B
+				ON A.TRAN_CD = B.TRAN_CD
+    		</when>
+    		<otherwise>
+		    	SELECT 
+					A.TRAN_CD
+					,(CASE WHEN B.TRAN_NM IS NULL THEN A.TRAN_CD ELSE B.TRAN_NM END) AS TRAN_NM
+					,A.TCNT AS CNT
+				FROM (	
+					SELECT 
+						T1.TRAN_CD
+						,SUM(T1.CNT) AS TCNT
+					FROM TBCA_DLY_TR_ERR_STAT T1
+					<![CDATA[
+					WHERE T1.DT >= #{param.FROM_DT}
+					AND T1.DT <= #{param.TO_DT}
+					]]>
+					GROUP BY T1.TRAN_CD
+					ORDER BY TCNT DESC
+					LIMIT 0, 5
+				) A
+				LEFT OUTER JOIN TBCA_TR_CD B
+				ON B.TRAN_CD = A.TRAN_CD
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectListErrBySrvc" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
+    	<choose>
+    		<when test="param.CURRENT_DATE != null">
+    			SELECT 
+					A.TRAN_CD
+					,(CASE WHEN C.TRAN_NM IS NULL THEN A.TRAN_CD ELSE C.TRAN_NM END) AS TRAN_NM
+					,A.ERR_CD
+					,(CASE WHEN B.ERR_CN IS NULL THEN A.ERR_CD ELSE B.ERR_CN END) AS ERR_CN
+					,A.CNT
+				FROM (	
+					SELECT 
+						T1.TRAN_CD
+						,T1.ERR_CD
+						,SUM(T1.CNT) AS CNT
+					FROM (
+						SELECT
+							A.DT
+							,A.TRAN_CD
+							,A.ERR_CD
+							,A.CNT
+						FROM TBCA_DLY_TR_ERR_STAT A
+						<![CDATA[
+						WHERE A.DT >= #{param.FROM_DT}
+						AND A.DT <= #{param.TO_DT}
+						]]>
+						AND A.DT != #{param.CURRENT_DATE}
+						UNION ALL
+						SELECT *
+						FROM (
+							SELECT 
+									A.DT
+									,A.TRAN_CD
+									,A.ERR_CD
+									,SUM(A.CNT) AS CNT
+							FROM TBCA_MLY_TR_ERR_STAT A
+							WHERE A.DT = #{param.CURRENT_DATE}
+							GROUP BY A.DT, A.TRAN_CD, A.ERR_CD
+						) A
+					) T1
+					GROUP BY T1.TRAN_CD, T1.ERR_CD
+				) A
+				LEFT OUTER JOIN TBCA_ERR_CD B
+				ON B.ERR_CD = A.ERR_CD
+				LEFT OUTER JOIN TBCA_TR_CD C
+				ON A.TRAN_CD = C.TRAN_CD
+				ORDER BY A.CNT DESC	
+    		</when>
+    		<otherwise>
+				SELECT 
+					A.TRAN_CD
+					,(CASE WHEN C.TRAN_NM IS NULL THEN A.TRAN_CD ELSE C.TRAN_NM END) AS TRAN_NM
+					,A.ERR_CD
+					,(CASE WHEN B.ERR_CN IS NULL THEN A.ERR_CD ELSE B.ERR_CN END) AS ERR_CN
+					,A.CNT
+				FROM (	
+					SELECT 
+						T1.TRAN_CD
+						,T1.ERR_CD
+						,SUM(T1.CNT) AS CNT
+					FROM TBCA_DLY_TR_ERR_STAT T1
+					<![CDATA[
+					WHERE T1.DT >= #{param.FROM_DT}
+					AND T1.DT <= #{param.TO_DT}
+					]]>
+					GROUP BY T1.TRAN_CD, T1.ERR_CD
+				) A
+				LEFT OUTER JOIN TBCA_ERR_CD B
+				ON B.ERR_CD = A.ERR_CD
+				LEFT OUTER JOIN TBCA_TR_CD C
+				ON A.TRAN_CD = C.TRAN_CD
+				ORDER BY A.CNT DESC	
+    		</otherwise>
+    	</choose>
+    </select>
+    <select id="selectListThirtyMlyErrTop5HM" parameterType="string" resultType="string">
+		SELECT
+		       T1.HM
+		FROM TBCA_30MLY_ERR_STAT T1
+		WHERE T1.DT = #{dt}
+		GROUP BY T1.HM
+		ORDER BY T1.HM
+    </select>
+    <select id="selectListThirtyMlyErrTop5" parameterType="string" resultType="hashMap">
+		SELECT A.*
+				,(CASE WHEN B.ERR_CN IS NULL THEN A.ERR_CD ELSE B.ERR_CN END) AS ERR_CN
+		FROM (
+			SELECT
+			       T1.HM
+			       ,T1.ERR_CD
+			       ,T1.CNT
+			FROM TBCA_30MLY_ERR_STAT T1
+			WHERE T1.DT = #{dt}
+			AND EXISTS (SELECT 1 
+						FROM (
+								SELECT 
+									ST1.ERR_CD
+									,SUM(ST1.CNT) AS TCNT
+								FROM TBCA_30MLY_ERR_STAT ST1
+								WHERE ST1.DT = #{dt} 
+								GROUP BY ST1.ERR_CD
+								ORDER BY TCNT DESC 
+								LIMIT 0, 5
+						) ST2 
+				    	WHERE ST2.ERR_CD = T1.ERR_CD)
+		) A
+		LEFT OUTER JOIN TBCA_ERR_CD B
+		ON B.ERR_CD = A.ERR_CD
+		ORDER BY A.HM, A.ERR_CD
+    </select>
+</mapper>
