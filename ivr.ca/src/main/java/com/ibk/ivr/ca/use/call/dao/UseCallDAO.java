@@ -27,8 +27,9 @@ public interface UseCallDAO {
      * @param vo 조회 조건
      * @return long 전체 데이터수
      * @throws Exception
-     */
     public long selectListCount(RequestVO vo) throws Exception;
+     */
+    public Map<String, Object> selectListCount(RequestVO vo) throws Exception;
     
     /**
      * 고객 콜 검색

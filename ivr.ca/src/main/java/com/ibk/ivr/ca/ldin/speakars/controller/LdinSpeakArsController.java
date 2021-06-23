@@ -91,10 +91,10 @@ public class LdinSpeakArsController {
         if(log.isDebugEnabled())
             log.debug("selectList result vos count {}", requestVO.getSize());
         
-        if(result.size() != 6) {
-        	List<Map<String, Object>> result2 = new ArrayList<Map<String, Object>>(6);
+        if(result.size() != 5) {
+        	List<Map<String, Object>> result2 = new ArrayList<Map<String, Object>>(5);
         	int sort = 1;
-        	String[] cd = {"ARS", "1910", "2114", "SIMPLE", "simple_Y", "simple_N"};
+        	String[] cd = {"ARS", "1910", "2114", "simple_Y", "simple_N"};
         	for(Map<String, Object> data : result) {
         		if(((Number)data.get("SORT")).intValue() == sort) {
         			result2.add(data);
@@ -116,7 +116,7 @@ public class LdinSpeakArsController {
         		}
         		sort++;
         	}
-        	for(; sort <= 6; sort++) {
+        	for(; sort <= 5; sort++) {
         		Map<String, Object> tmp = new HashMap<String, Object>();
     			tmp.put("CD", cd[sort-1]);
     			tmp.put("SORT", sort);

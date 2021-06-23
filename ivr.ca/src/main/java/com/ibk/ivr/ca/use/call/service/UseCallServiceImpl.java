@@ -25,6 +25,7 @@ public class UseCallServiceImpl implements UseCallService {
 	
 	@Autowired
 	private UseCallDAO dao;
+	private Integer avgUseTm;
     
     /**
      * 고객 콜 검색
@@ -35,7 +36,9 @@ public class UseCallServiceImpl implements UseCallService {
      */
 	@Override
     public List<Map<String, Object>> selectList(RequestVO vo) throws Exception {
-		long size = dao.selectListCount(vo);
+		Map<String, Object> data = dao.selectListCount(vo);
+		long size = ((Number)data.get("TOT_CNT")).longValue();
+		avgUseTm = ((Number)data.get("USE_TM")).intValue();
         if(size > 0) {
             vo.setSize(size);
             return dao.selectList(vo);
@@ -52,7 +55,8 @@ public class UseCallServiceImpl implements UseCallService {
      */
 	@Override
     public Integer selectListAvgUseTm(RequestVO vo) throws Exception {
-    	return dao.selectListAvgUseTm(vo);
+    //	return dao.selectListAvgUseTm(vo);
+		return avgUseTm;
     }
     
     /**

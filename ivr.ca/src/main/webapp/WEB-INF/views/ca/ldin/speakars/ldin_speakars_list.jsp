@@ -11,45 +11,38 @@
 			<fmt:formatNumber var="totCnt2" value="${item.TOT_CNT2}" pattern="#.##" />
 			<c:choose>
 				<c:when test="${item.CD == 'ARS'}">
-					<c:set var="NM" value="말로하는 ARS 총 건수"></c:set>
-				</c:when>
-				<c:when test="${item.CD == 'SIMPLE'}">
-					<c:set var="NM" value="간편송금 총 건수"></c:set>
+					<c:set var="NM" value="총 건수"></c:set>
 				</c:when>
 				<c:when test="${item.CD == '1910'}">
 					<c:set var="NM" value="말로하는 ARS 메뉴이동"></c:set>
 				</c:when>
 				<c:when test="${item.CD == '2114'}">
-					<c:set var="NM" value="말로하는 간편송금"></c:set>
+					<c:set var="NM" value="음성 인식"></c:set>
 				</c:when>
 				<c:when test="${item.CD == 'simple_Y'}">
-					<c:set var="NM" value="음성 인식 간편송금"></c:set>
+					<c:set var="NM" value="계좌 직접 선택"></c:set>
 				</c:when>
 				<c:when test="${item.CD == 'simple_N'}">
-					<c:set var="NM" value="음성 미인식 간편송금"></c:set>
+					<c:set var="NM" value="간편송금 미사용"></c:set>
 				</c:when>
 			</c:choose>
 			<tr data-cd="${item.CD}" data-nm="${NM}" data-avg1="<fmt:formatNumber value="${item.AVG_CNT1}" pattern="###"></fmt:formatNumber>" data-tot1="${item.TOT_CNT1}" data-avg2="<fmt:formatNumber value="${item.AVG_CNT2}" pattern="###"></fmt:formatNumber>" data-tot2="${item.TOT_CNT2}">
 				<c:choose>
 					<c:when test="${item.CD == 'ARS'}">
-						<td class="txt div" colspan="2">말로하는 ARS 총 건수</td>
-					</c:when>
-					<c:when test="${item.CD == 'SIMPLE'}">
-						<td class="txt div" colspan="2">간편송금 총 건수</td>
+						<td class="txt div" colspan="2">총 건수</td>
 					</c:when>
 					<c:when test="${item.CD == '1910'}">
-						<td class="txt" rowspan="2">말로하는 ARS</td>
-						<td class="txt div">말로하는 ARS<br/>메뉴이동</td>
+						<td class="txt div" colspan="2">말로하는 ARS 메뉴이동</td>
 					</c:when>
 					<c:when test="${item.CD == '2114'}">
-						<td class="txt div">말로하는<br/>간편송금</td>
+						<td class="txt" rowspan="3">간편송금</td>
+						<td class="txt div">음성 인식</td>
 					</c:when>
 					<c:when test="${item.CD == 'simple_Y'}">
-						<td class="txt" rowspan="2">간편송금</td>
-						<td class="txt div">음성 인식<br/>간편송금</td>
+						<td class="txt div">계좌 직접 선택</td>
 					</c:when>
 					<c:when test="${item.CD == 'simple_N'}">
-						<td class="txt div">음성 미인식<br/>간편송금</td>
+						<td class="txt div">간편송금 미사용</td>
 					</c:when>
 				</c:choose>
 				<td class="lineBold">

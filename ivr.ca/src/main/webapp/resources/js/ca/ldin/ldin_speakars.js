@@ -73,7 +73,9 @@ app.ldin.speakars = {
 			var labels = [], std_tot_data = [], compare_tot_data = [], std_avg_data = [], compare_avg_data = [];
 			var arsCnt1 = 0, arsCnt2 = 0;/*말로하는 건수*/
 			var simpleCnt1 = 0, simpleCnt2 = 0;/*간편송금 건수*/
+			//console.log("trs.length", $trs.length);
 			for(var i = 0; i < $trs.length; i++) {
+				
 				var cd = $trs[i].getAttribute('data-cd');
 				if(cd == 'ARS') {
 					arsCnt1 = parseInt($trs[i].getAttribute('data-tot1'), 10);
@@ -121,35 +123,35 @@ app.ldin.speakars = {
 					try {
 						var cnt1 = parseInt($trs[i].getAttribute('data-tot1'), 10);
 						if(cnt1 == 0 || arsCnt1 == 0)
-							$trs[i].children[cd == '2114' ? 3 : 4].innerHTML = '0 %';
+							$trs[i].children[cd == '1910' ? 3 : 4].innerHTML = '0 %';
 						else
-							$trs[i].children[cd == '2114' ? 3 : 4].innerHTML = Math.round(cnt1/arsCnt1*1000)/10 + ' %';
+							$trs[i].children[cd == '1910' ? 3 : 4].innerHTML = Math.round(cnt1/arsCnt1*1000)/10 + ' %';
 
 						var cnt2 = parseInt($trs[i].getAttribute('data-tot2'), 10);
 						if(cnt2 == 0 || arsCnt2 == 0)
-							$trs[i].children[cd == '2114' ? 10 : 11].innerHTML = '0 %';
+							$trs[i].children[cd == '1910' ? 10 : 11].innerHTML = '0 %';
 						else
-							$trs[i].children[cd == '2114' ? 10 : 11].innerHTML = Math.round(cnt2/arsCnt2*1000)/10 + ' %';
+							$trs[i].children[cd == '1910' ? 10 : 11].innerHTML = Math.round(cnt2/arsCnt2*1000)/10 + ' %';
 					} catch(e) {
-						$trs[i].children[cd == '2114' ? 3 : 4].innerHTML = '0 %';
-						$trs[i].children[cd == '2114' ? 10 : 11].innerHTML = '0 %';
+						$trs[i].children[cd == '1910' ? 3 : 4].innerHTML = '0 %';
+						$trs[i].children[cd == '1910' ? 10 : 11].innerHTML = '0 %';
 					}
 				} else if(cd == 'simple_Y' || cd == 'simple_N') {
 					try {
 						var cnt1 = parseInt($trs[i].getAttribute('data-tot1'), 10);
-						if(simpleCnt1 == 0 || cnt1 == 0)
-							$trs[i].children[cd == 'simple_N' ? 3 : 4].innerHTML = '0 %';
+						if(arsCnt1 == 0 || cnt1 == 0)
+							$trs[i].children[3].innerHTML = '0 %';
 						else 
-							$trs[i].children[cd == 'simple_N' ? 3 : 4].innerHTML = Math.round(cnt1/simpleCnt1*1000)/10 + ' %';
+							$trs[i].children[3].innerHTML = Math.round(cnt1/arsCnt1*1000)/10 + ' %';
 
 						var cnt2 = parseInt($trs[i].getAttribute('data-tot2'), 10);
-						if(simpleCnt2 == 0 || cnt2 == 0)
-							$trs[i].children[cd == 'simple_N' ? 10 : 11].innerHTML = '0 %';
+						if(arsCnt2 == 0 || cnt2 == 0)
+							$trs[i].children[10].innerHTML = '0 %';
 						else 
-							$trs[i].children[cd == 'simple_N' ? 10 : 11].innerHTML = Math.round(cnt2/simpleCnt2*1000)/10 + ' %';
+							$trs[i].children[10].innerHTML = Math.round(cnt2/arsCnt2*1000)/10 + ' %';
 					} catch(e) {
-						$trs[i].children[cd == 'simple_N' ? 3 : 4].innerHTML = '0 %';
-						$trs[i].children[cd == 'simple_N' ? 10 : 11].innerHTML = '0 %';
+						$trs[i].children[3].innerHTML = '0 %';
+						$trs[i].children[10].innerHTML = '0 %';
 					}
 				}
 			}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ibk.ivr.ca.use.call.dao.UseCallDAO">
-    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="long">
+    <select id="selectListCount" parameterType="com.ibk.ivr.ca.common.vo.RequestVO" resultType="hashMap">
         SELECT
-        COUNT(T1.ICID)
+        COUNT(T1.ICID) AS TOT_CNT, AVG(T1.USE_TM) AS USE_TM
         FROM TBCA_IVR_LOG T1
 		<![CDATA[
 		WHERE T1.LDIN_DT >= #{param.FROM_TM}
@@ -18,10 +18,6 @@
         <if test="param.RGSNO != null and param.RGSNO != ''">
             AND T1.USER_SECD = #{param.USER_SECD} 
         </if>
-		<![CDATA[
-		AND T1.DT >= #{param.FROM_DT}
-		AND T1.DT <= #{param.TO_DT}
-		]]>
         <if test="param.RGSNO != null and param.RGSNO != ''">
             AND T1.RGSNO = #{param.RGSNO} 
         </if>
@@ -63,10 +59,6 @@
         <if test="param.RGSNO != null and param.RGSNO != ''">
             AND T1.USER_SECD = #{param.USER_SECD} 
         </if>
-		<![CDATA[
-		AND T1.DT >= #{param.FROM_DT}
-		AND T1.DT <= #{param.TO_DT}
-		]]>
         <if test="param.RGSNO != null and param.RGSNO != ''">
             AND T1.RGSNO = #{param.RGSNO} 
         </if>
