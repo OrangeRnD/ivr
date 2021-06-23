@@ -1500,3 +1500,52 @@ java.lang.NullPointerException
 !MESSAGE null
 !STACK 0
 java.lang.NullPointerException
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1000 2021-06-23 10:06:33.644
+!MESSAGE No repository found at https://download.eclipse.org/tools/orbit/downloads/drops/S20200219023850/repository.
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1000 2021-06-23 10:06:35.301
+!MESSAGE No repository found at https://download.eclipse.org/tools/orbit/downloads/drops/I20200506000552/repository.
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1002 2021-06-23 10:06:38.327
+!MESSAGE Unable to read repository at http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=1631105.
+!STACK 0
+java.io.IOException: http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=1631105 is not a valid repository location.
+	at org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory.load(SimpleMetadataRepositoryFactory.java:103)
+	at org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager.factoryLoad(MetadataRepositoryManager.java:63)
+	at org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager.loadRepository(AbstractRepositoryManager.java:775)
+	at org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager.loadRepository(AbstractRepositoryManager.java:676)
+	at org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager.loadRepository(MetadataRepositoryManager.java:110)
+	at org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager.loadRepository(MetadataRepositoryManager.java:105)
+	at org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker.getAvailableRepositories(UpdateChecker.java:152)
+	at org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker.checkForUpdates(UpdateChecker.java:130)
+	at org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker$UpdateCheckThread.run(UpdateChecker.java:78)
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1000 2021-06-23 10:06:40.704
+!MESSAGE No repository found at https://download.eclipse.org/tools/orbit/downloads/drops/I20210203173513/repository.
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1000 2021-06-23 10:06:42.351
+!MESSAGE No repository found at https://download.eclipse.org/tools/orbit/downloads/drops/S20200519202422/repository.
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1000 2021-06-23 10:06:44.015
+!MESSAGE No repository found at https://download.eclipse.org/tools/orbit/downloads/drops/S20200224183213/repository.
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1000 2021-06-23 10:06:46.060
+!MESSAGE No repository found at https://download.eclipse.org/tools/orbit/downloads/drops/S20200128200239/repository.
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1002 2021-06-23 10:06:50.177
+!MESSAGE Unable to read repository at http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=1784264.
+!STACK 0
+java.io.IOException: http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=1784264 is not a valid repository location.
+	at org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory.load(SimpleMetadataRepositoryFactory.java:103)
+	at org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager.factoryLoad(MetadataRepositoryManager.java:63)
+	at org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager.loadRepository(AbstractRepositoryManager.java:775)
+	at org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager.loadRepository(AbstractRepositoryManager.java:676)
+	at org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager.loadRepository(MetadataRepositoryManager.java:110)
+	at org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager.loadRepository(MetadataRepositoryManager.java:105)
+	at org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker.getAvailableRepositories(UpdateChecker.java:152)
+	at org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker.checkForUpdates(UpdateChecker.java:130)
+	at org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker$UpdateCheckThread.run(UpdateChecker.java:78)
+
+!ENTRY org.eclipse.equinox.p2.metadata.repository 4 1000 2021-06-23 10:06:52.805
+!MESSAGE No repository found at https://download.eclipse.org/tools/orbit/downloads/drops/I20200319180910/repository.

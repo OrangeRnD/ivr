@@ -3,7 +3,8 @@
 <properties>
 	<comment>application properties</comment>
 	<entry key="constants.session.time">86400</entry>
-	<entry key="dataSource.url">jdbc:mysql://222.121.135.68:3306/m8?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true&amp;serverTimezone=UTC</entry>
+	<!-- entry key="dataSource.url">jdbc:mysql://222.121.135.68:3306/m8?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true&amp;serverTimezone=UTC</entry -->
+	<entry key="dataSource.url">jdbc:mysql://172.24.130.73:3306/m8?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true&amp;serverTimezone=Asia/Seoul</entry>
 	<entry key="dataSource.username">m8</entry>
 	<!-- <entry key="dataSource.password">ENC(EfSx5ZB6bPtjnWO2oQvimKjw8oqktW5X)</entry> --> <!-- MD5 -->
 	<entry key="dataSource.password">ENC(cdfMqxbZene3tGh7yAQx8zQceWsJEuCwfJ69hm4ceU0=)</entry> <!-- AES256 -->
