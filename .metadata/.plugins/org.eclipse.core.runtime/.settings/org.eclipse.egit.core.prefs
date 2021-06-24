@@ -1,4 +1,4 @@
-GitRepositoriesView.GitDirectories=D\:\\IBK-IVR\\.git;
-GitRepositoriesView.GitDirectories.relative=D\:\\IBK-IVR\\.git;
+GitRepositoriesView.GitDirectories=D\:\\ivr\\.git;
+GitRepositoriesView.GitDirectories.relative=.git;
 core_autoIgnoreDerivedResources=false
 eclipse.preferences.version=1

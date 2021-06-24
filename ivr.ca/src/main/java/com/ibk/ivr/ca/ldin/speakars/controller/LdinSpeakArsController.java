@@ -182,10 +182,10 @@ public class LdinSpeakArsController {
 					
 					crateYMDCell(row, c++, (String)data.get("DT"));
 					
-					Number CNT_1910 = (Number)data.get("CNT_1910");//말로하는 ARS 메뉴이동
-					Number CNT_2114 = (Number)data.get("CNT_2114");//음성 인식
-					Number CNT_simple_Y = (Number)data.get("CNT_simple_Y");//계좌 직접 선택
-					Number CNT_simple_N = (Number)data.get("CNT_simple_N");//간편송금 미사용
+					Number CNT_1910 = (Number)data.get("CNT_1910");// 말로하는 ARS 메뉴이동
+					Number CNT_2114 = (Number)data.get("CNT_2114");// 음성 인식
+					Number CNT_simple_Y = (Number)data.get("CNT_simple_Y");// 계좌 직접 선택 
+					Number CNT_simple_N = (Number)data.get("CNT_simple_N");// 간편송금 미사용
 
 					createNumberCell(row, c++, CNT_1910.longValue() + CNT_2114.longValue());
 					createNumberCell(row, c++, CNT_1910.longValue());
