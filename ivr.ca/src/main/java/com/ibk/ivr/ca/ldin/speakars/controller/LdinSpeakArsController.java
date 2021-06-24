@@ -169,8 +169,8 @@ public class LdinSpeakArsController {
 		        short r = 1;
 				this.createTitle(sheet, r++, "ARS 유형별 이용현황");
 
-				String[] titles = {"일자", "말로하는 ARS 총 건수", "말로하는 ARS 메뉴이동", "말로하는 간편송금", "간편송금 총 건수", "음성 인식 간편송금", "음성 미인식 간편송금"};
-				int[] width = {20, 22, 22, 22, 22, 22, 22};
+				String[] titles = {"일자", "말로하는 ARS 총 건수", "말로하는 ARS 메뉴이동", "음성 인식", "계좌 직접 선택", "간편송금 미사용"};
+				int[] width = {20, 22, 22, 22, 22, 22};
 				this.createHeader(sheet, r++, titles, width);
 				
 				@SuppressWarnings("unchecked")
@@ -183,9 +183,9 @@ public class LdinSpeakArsController {
 					crateYMDCell(row, c++, (String)data.get("DT"));
 					
 					Number CNT_1910 = (Number)data.get("CNT_1910");//말로하는 ARS 메뉴이동
-					Number CNT_2114 = (Number)data.get("CNT_2114");//말로하는 간편송금
-					Number CNT_simple_Y = (Number)data.get("CNT_simple_Y");//음성 인식 간편송금
-					Number CNT_simple_N = (Number)data.get("CNT_simple_N");//음성 미인식 간편송금
+					Number CNT_2114 = (Number)data.get("CNT_2114");//음성 인식
+					Number CNT_simple_Y = (Number)data.get("CNT_simple_Y");//계좌 직접 선택
+					Number CNT_simple_N = (Number)data.get("CNT_simple_N");//간편송금 미사용
 
 					createNumberCell(row, c++, CNT_1910.longValue() + CNT_2114.longValue());
 					createNumberCell(row, c++, CNT_1910.longValue());
