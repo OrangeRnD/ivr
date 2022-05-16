@@ -46,7 +46,7 @@
 					</c:when>
 				</c:choose>
 				<td class="lineBold">
-					<fmt:formatNumber value="${item.AVG_CNT1}" pattern="#,###"></fmt:formatNumber>
+					<fmt:formatNumber value="${item.AVG_CNT1}" pattern="#,##0.0"></fmt:formatNumber>
 				</td>
 				<td class="lineBold">
 					<fmt:formatNumber value="${item.TOT_CNT1}" pattern="#,###"></fmt:formatNumber>
@@ -60,7 +60,7 @@
 					<fmt:formatNumber value="${item.MAX_CNT1}" pattern="#,###"></fmt:formatNumber>
 				</td>
 				<td class="lineBold">
-					<fmt:formatNumber value="${item.AVG_CNT2}" pattern="#,###"></fmt:formatNumber>
+					<fmt:formatNumber value="${item.AVG_CNT2}" pattern="#,##0.0"></fmt:formatNumber>
 				</td>
 				<c:choose>
 					<c:when test="${item.AVG_CNT2 <= 0}">

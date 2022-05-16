@@ -104,7 +104,7 @@
 					        		<if test="param.CURRENT_DATE2 != null">
 									AND A.DT != #{param.CURRENT_DATE2}
 									</if>
-									AND NOT(A.SRVC_CD != '1910' AND A.SRVC_CD != '2114')
+									AND NOT(A.SRVC_CD != '1910' AND A.SRVC_CD != '2114' AND A.SRVC_CD != 'simple_Y' AND A.SRVC_CD != 'simple_N')
 									GROUP BY A.DT
 								) A
 					        	<if test="param.CURRENT_DATE2 != null">
@@ -116,7 +116,7 @@
 										,SUM(A.CNT) AS CNT
 									FROM TBCA_MLY_SRVC_STAT A
 									WHERE A.DT = #{param.CURRENT_DATE2}
-									AND NOT(A.SRVC_CD != '1910' AND A.SRVC_CD != '2114')
+									AND NOT(A.SRVC_CD != '1910' AND A.SRVC_CD != '2114' AND A.SRVC_CD != 'simple_Y' AND A.SRVC_CD != 'simple_N')
 									GROUP BY A.DT
 								) A
 								</if>
